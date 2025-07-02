@@ -4,15 +4,9 @@
   "scripts": {
     "dev": "vite",
     "cf-dev": "wrangler dev",
-    "cf-dev:staging": "wrangler dev --env staging",
-    "cf-dev:production": "wrangler dev --env production",
     "build": "vite build",
-    "build:staging": "vite build --mode staging",
-    "build:production": "vite build --mode production",
     "preview": "pnpm run build && vite preview",
     "deploy": "pnpm run build && wrangler deploy",
-    "deploy:staging": "pnpm run build:staging && wrangler deploy --env staging",
-    "deploy:production": "pnpm run build:production && wrangler deploy --env production",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "env:setup": "echo 'Please copy .dev.vars.example to .dev.vars and configure your environment variables'"
   },

@@ -21,44 +21,5 @@
     "crons": [
       "0 0,12 * * *"
     ]
-  },
-  "env": {
-    "staging": {
-      "name": "steam-staging",
-      "vars": {
-        "NODE_ENV": "staging",
-        "LOG_LEVEL": "info",
-        "API_BASE_URL": "https://steam-staging.your-domain.com"
-      },
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "steam_games_staging",
-          "database_id": "staging-database-id-here",
-          "migrations_dir": "drizzle"
-        }
-      ]
-    },
-    "production": {
-      "name": "steam-production",
-      "vars": {
-        "NODE_ENV": "production",
-        "LOG_LEVEL": "warn",
-        "API_BASE_URL": "https://steam.your-domain.com"
-      },
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "steam_games_production",
-          "database_id": "production-database-id-here",
-          "migrations_dir": "drizzle"
-        }
-      ],
-      "triggers": {
-        "crons": [
-          "0 2,14 * * *"
-        ]
-      }
-    }
   }
 }
