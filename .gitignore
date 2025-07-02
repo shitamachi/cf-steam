@@ -1,0 +1,47 @@
+# prod
+dist/
+dist-server/
+
+# dev
+.yarn/
+!.yarn/releases
+
+# deps
+node_modules/
+.wrangler/
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/launch.json
+!.vscode/*.code-snippets
+!.vscode/extensions.json
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/shelf/
+.idea/dataSources/
+.idea/dataSources.local.xml
+.idea/httpRequests/
+
+# Environment variables
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# misc
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

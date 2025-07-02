@@ -1,0 +1,14 @@
+# Steam API 配置
+STEAM_API_KEY=your_steam_api_key_here
+
+# 数据库配置
+DATABASE_URL=your_database_url_here
+
+# 应用配置
+NODE_ENV=development
+LOG_LEVEL=info
+API_BASE_URL=http://localhost:3000
+
+# Steam 服务配置
+STEAM_RATE_LIMIT=100
+STEAM_CACHE_TTL=3600

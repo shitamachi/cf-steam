@@ -1,0 +1,64 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "steam",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
+  "main": "./src/index.ts",
+  "vars": {
+    "NODE_ENV": "development",
+    "LOG_LEVEL": "info",
+    "API_BASE_URL": "http://localhost:3000"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "steam_games",
+      "database_id": "0a43c18d-927f-4e10-8bd7-3119ec760e44",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "0 0,12 * * *"
+    ]
+  },
+  "env": {
+    "staging": {
+      "name": "steam-staging",
+      "vars": {
+        "NODE_ENV": "staging",
+        "LOG_LEVEL": "info",
+        "API_BASE_URL": "https://steam-staging.your-domain.com"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "steam_games_staging",
+          "database_id": "staging-database-id-here",
+          "migrations_dir": "drizzle"
+        }
+      ]
+    },
+    "production": {
+      "name": "steam-production",
+      "vars": {
+        "NODE_ENV": "production",
+        "LOG_LEVEL": "warn",
+        "API_BASE_URL": "https://steam.your-domain.com"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "steam_games_production",
+          "database_id": "production-database-id-here",
+          "migrations_dir": "drizzle"
+        }
+      ],
+      "triggers": {
+        "crons": [
+          "0 2,14 * * *"
+        ]
+      }
+    }
+  }
+}
