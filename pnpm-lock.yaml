@@ -25,7 +25,7 @@ importers:
         version: 3.3.2
       steamapi:
         specifier: github:shitamachi/node-steamapi
-        version: https://codeload.github.com/shitamachi/node-steamapi/tar.gz/18e699f86d480ee416f2ac9e13ea35514b244e72
+        version: https://codeload.github.com/shitamachi/node-steamapi/tar.gz/8d27ead85f5dde0a67e9b10524b01182e3cd2cad
       zod:
         specifier: ^3.22.4
         version: 3.25.67
@@ -894,10 +894,6 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  agent-base@7.1.3:
-    resolution: {integrity: sha512-jRR5wdylq8CkOe6hei19GGZnxM6rBGwFl3Bg0YItGDimvjGtAvdZk4Pu6Cl4u4Igsws4a1fd1Vq3ezrhn4KmFw==}
-    engines: {node: '>= 14'}
-
   as-table@1.0.55:
     resolution: {integrity: sha512-xvsWESUJn0JN421Xb9MQw6AsMHRCUknCe0Wjlxvjud80mU4E6hQf1A6NzQKcYNmYw62MfzEtXc+badstZP3JpQ==}
 
@@ -1116,14 +1112,6 @@ packages:
     resolution: {integrity: sha512-jYZ6ZtfWjzBdh8H/0CIFfCBHaFL75k+KMzaM177hrWWm2TWL39YMYaJgB74uK/niRc866NMlH9B8uCvIo284WQ==}
     engines: {node: '>=16.9.0'}
 
-  http-proxy-agent@7.0.2:
-    resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
-    engines: {node: '>= 14'}
-
-  https-proxy-agent@7.0.6:
-    resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
-    engines: {node: '>= 14'}
-
   is-arrayish@0.3.2:
     resolution: {integrity: sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==}
 
@@ -1234,13 +1222,10 @@ packages:
   stacktracey@2.1.8:
     resolution: {integrity: sha512-Kpij9riA+UNg7TnphqjH7/CzctQ/owJGNbFkfEeve4Z4uxT5+JapVLFXcsurIfN34gnTWZNJ/f7NMG0E8JDzTw==}
 
-  steamapi@https://codeload.github.com/shitamachi/node-steamapi/tar.gz/18e699f86d480ee416f2ac9e13ea35514b244e72:
-    resolution: {tarball: https://codeload.github.com/shitamachi/node-steamapi/tar.gz/18e699f86d480ee416f2ac9e13ea35514b244e72}
-    version: 3.1.3
-
-  steamid@2.1.0:
-    resolution: {integrity: sha512-ndt1cvuuSC+i8fcxVsmeyRlgGsR1QsoAuIXz+eabj8/Y4GIWE2+mgHA7Hys61JDHOxttfWtXHtN2m5TNYTlORg==}
-    engines: {node: '>=12.0.0'}
+  steamapi@https://codeload.github.com/shitamachi/node-steamapi/tar.gz/8d27ead85f5dde0a67e9b10524b01182e3cd2cad:
+    resolution: {tarball: https://codeload.github.com/shitamachi/node-steamapi/tar.gz/8d27ead85f5dde0a67e9b10524b01182e3cd2cad}
+    version: 3.1.4-wasm
+    engines: {node: '>=14.0.0'}
 
   stoppable@1.1.0:
     resolution: {integrity: sha512-KXDYZ9dszj6bzvnEMRYvxgeTHU74QBFL54XKtP3nyMuJ81CFYtABZ3bAzL2EdFUaEwJOBOgENyFj3R7oTzDyyw==}
@@ -1916,9 +1901,6 @@ snapshots:
 
   acorn@8.14.0: {}
 
-  agent-base@7.1.3:
-    optional: true
-
   as-table@1.0.55:
     dependencies:
       printable-characters: 1.0.42
@@ -2097,22 +2079,6 @@ snapshots:
 
   hono@4.8.3: {}
 
-  http-proxy-agent@7.0.2:
-    dependencies:
-      agent-base: 7.1.3
-      debug: 4.4.1
-    transitivePeerDependencies:
-      - supports-color
-    optional: true
-
-  https-proxy-agent@7.0.6:
-    dependencies:
-      agent-base: 7.1.3
-      debug: 4.4.1
-    transitivePeerDependencies:
-      - supports-color
-    optional: true
-
   is-arrayish@0.3.2: {}
 
   js-tokens@4.0.0: {}
@@ -2255,17 +2221,7 @@ snapshots:
       as-table: 1.0.55
       get-source: 2.0.12
 
-  steamapi@https://codeload.github.com/shitamachi/node-steamapi/tar.gz/18e699f86d480ee416f2ac9e13ea35514b244e72:
-    dependencies:
-      node-fetch: 3.3.2
-      steamid: 2.1.0
-    optionalDependencies:
-      http-proxy-agent: 7.0.2
-      https-proxy-agent: 7.0.6
-    transitivePeerDependencies:
-      - supports-color
-
-  steamid@2.1.0: {}
+  steamapi@https://codeload.github.com/shitamachi/node-steamapi/tar.gz/8d27ead85f5dde0a67e9b10524b01182e3cd2cad: {}
 
   stoppable@1.1.0: {}
 

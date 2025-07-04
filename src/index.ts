@@ -45,46 +45,48 @@ app.use(renderer)
 
 // === OpenAPI 文档配置 ===
 
-// OpenAPI 规范
-app.doc('/openapi.json', {
-  openapi: '3.1.0',
-  info: {
-    title: 'Steam Fetch API',
-    version: '1.0.0',
-    description: '一个用于获取和管理 Steam 游戏信息的 API 服务',
-    contact: {
-      name: 'API Support',
-      email: 'support@example.com',
+// OpenAPI 规范 - 动态获取当前域名
+app.doc('/openapi.json', (c) => {
+  // 直接从请求URL获取域名
+  const currentOrigin = new URL(c.req.url).origin
+  console.info(currentOrigin)
+  
+  return {
+    openapi: '3.1.0',
+    info: {
+      title: 'Steam Fetch API',
+      version: '1.0.0',
+      description: '一个用于获取和管理 Steam 游戏信息的 API 服务',
+      contact: {
+        name: 'API Support',
+        email: 'support@example.com',
+      },
+      license: {
+        name: 'MIT',
+        url: 'https://opensource.org/licenses/MIT',
+      },
     },
-    license: {
-      name: 'MIT',
-      url: 'https://opensource.org/licenses/MIT',
-    },
-  },
-  servers: [
-    {
-      url: 'https://your-api-domain.com',
-      description: 'Production server',
-    },
-    {
-      url: 'http://127.0.0.1:8787',
-      description: 'Development server',
-    },
-  ],
-  tags: [
-    {
-      name: 'Steam',
-      description: 'Steam API 相关接口',
-    },
-    {
-      name: 'Games',
-      description: '游戏数据管理接口',
-    },
-    {
-      name: 'System',
-      description: '系统健康检查接口',
-    },
-  ],
+    servers: [
+      {
+        url: currentOrigin,
+        description: 'Current server',
+      },
+    ],
+    tags: [
+      {
+        name: 'Steam',
+        description: 'Steam API 相关接口',
+      },
+      {
+        name: 'Games',
+        description: '游戏数据管理接口',
+      },
+      {
+        name: 'System',
+        description: '系统健康检查接口',
+      },
+    ],
+  }
 })
 
 // Scalar API 文档界面
@@ -96,6 +98,9 @@ app.get('/docs', Scalar({
 // === 主页路由 ===
 
 app.get('/', (c) => {
+  // 直接从请求URL获取当前域名
+  const currentDomain = new URL(c.req.url).origin
+  
   return c.html(`
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -166,9 +171,9 @@ app.get('/', (c) => {
         <p>一个功能完整的 Steam 游戏信息抓取和管理 API 服务</p>
         
         <div style="margin: 30px 0;">
-          <a href="/docs" class="docs-link">📚 查看 API 文档</a>
-          <a href="/openapi.json" class="docs-link">📄 OpenAPI 规范</a>
-          <a href="/health" class="docs-link">💚 健康检查</a>
+          <a href="${currentDomain}/docs" class="docs-link">📚 查看 API 文档</a>
+          <a href="${currentDomain}/openapi.json" class="docs-link">📄 OpenAPI 规范</a>
+          <a href="${currentDomain}/health" class="docs-link">💚 健康检查</a>
         </div>
 
         <div class="api-section">
@@ -233,10 +238,11 @@ app.get('/', (c) => {
           <p><code>action</code> <code>adventure</code> <code>strategy</code> <code>rpg</code> <code>simulation</code> <code>sports</code> <code>racing</code> <code>indie</code> <code>free</code></p>
         </div>
 
-        <div class="api-section">
+                  <div class="api-section">
           <h2>💡 使用说明</h2>
           <p>所有 API 响应都采用统一的 JSON 格式，包含 <code>success</code>、<code>data</code>、<code>message</code> 等字段。</p>
-          <p>详细的请求参数、响应格式和示例请查看 <a href="/docs">API 文档</a>。</p>
+          <p>详细的请求参数、响应格式和示例请查看 <a href="${currentDomain}/docs">API 文档</a>。</p>
+          <p><strong>当前服务器:</strong> <code>${currentDomain}</code></p>
         </div>
       </div>
     </body>
