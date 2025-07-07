@@ -1,32 +1,37 @@
 {
-  "name": "steam",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "cf-dev": "wrangler dev",
-    "build": "vite build",
-    "preview": "pnpm run build && vite preview",
-    "deploy": "pnpm run build && wrangler deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-    "env:setup": "echo 'Please copy .dev.vars.example to .dev.vars and configure your environment variables'"
-  },
-  "dependencies": {
-    "@hono/zod-openapi": "^0.19.9",
-    "@scalar/hono-api-reference": "^0.9.7",
-    "drizzle-orm": "^0.44.2",
-    "hono": "^4.8.3",
-    "node-fetch": "^3.3.2",
-    "steamapi": "github:shitamachi/node-steamapi",
-    "zod": "^3.22.4"
-  },
-  "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.2.3",
-    "@cloudflare/workers-types": "^4.20250628.0",
-    "@types/node": "^20.10.0",
-    "drizzle-kit": "^0.31.4",
-    "typescript": "^5.8.3",
-    "vite": "^7.0.0",
-    "vite-ssr-components": "^0.3.0",
-    "wrangler": "^4.17.0"
-  }
+	"name": "steam",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"cf-dev": "wrangler dev",
+		"dev:debug": "wrangler dev --inspector-port 9229 --local --port 8787",
+		"build": "vite build",
+		"preview": "pnpm run build && vite preview",
+		"deploy": "pnpm run build && wrangler deploy",
+		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
+		"env:setup": "echo 'Please copy .dev.vars.example to .dev.vars and configure your environment variables'",
+		"test": "vitest"
+	},
+	"dependencies": {
+		"@hono/zod-openapi": "^0.19.9",
+		"@scalar/hono-api-reference": "^0.9.7",
+		"drizzle-orm": "^0.44.2",
+		"hono": "^4.8.3",
+		"node-fetch": "^3.3.2",
+		"steamapi": "github:shitamachi/node-steamapi",
+		"zod": "^3.22.4"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.0.6",
+		"@cloudflare/vite-plugin": "^1.2.3",
+		"@cloudflare/vitest-pool-workers": "^0.8.49",
+		"@cloudflare/workers-types": "^4.20250628.0",
+		"@types/node": "^20.10.0",
+		"drizzle-kit": "^0.31.4",
+		"typescript": "^5.8.3",
+		"vite": "6.3.4",
+		"vite-ssr-components": "^0.3.0",
+		"vitest": "^3.2.4",
+		"wrangler": "^4.17.0"
+	}
 }

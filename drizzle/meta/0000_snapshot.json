@@ -1,49 +1,49 @@
 {
-  "version": "6",
-  "dialect": "sqlite",
-  "id": "283e9f11-e7a5-4f87-87bb-0d1fedc6d636",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "tables": {
-    "games": {
-      "name": "games",
-      "columns": {
-        "appid": {
-          "name": "appid",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "last_fetched_at": {
-          "name": "last_fetched_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    }
-  },
-  "views": {},
-  "enums": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "indexes": {}
-  }
+	"version": "6",
+	"dialect": "sqlite",
+	"id": "283e9f11-e7a5-4f87-87bb-0d1fedc6d636",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"tables": {
+		"games": {
+			"name": "games",
+			"columns": {
+				"appid": {
+					"name": "appid",
+					"type": "integer",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"last_fetched_at": {
+					"name": "last_fetched_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		}
+	},
+	"views": {},
+	"enums": {},
+	"_meta": {
+		"schemas": {},
+		"tables": {},
+		"columns": {}
+	},
+	"internal": {
+		"indexes": {}
+	}
 }

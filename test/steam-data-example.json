@@ -1,0 +1,286 @@
+{
+	"appid": 292030,
+	"name": "The Witcher 3: Wild Hunt",
+	"type": "game",
+
+	"shortDescription": "《巫师3：狂猎》是一款故事丰富的开放世界RPG游戏，玩家将扮演职业怪物猎人杰洛特，踏上寻找命运之子的史诗旅程。",
+	"detailedDescription": "《巫师3：狂猎》是一款故事丰富的开放世界RPG游戏，玩家将扮演职业怪物猎人杰洛特，踏上寻找命运之子的史诗旅程。在这个充满战争创伤的幻想世界中，你的每一个选择都至关重要。",
+	"description": "《巫师3：狂猎》是一款故事丰富的开放世界RPG游戏",
+
+	"currentPrice": "¥ 127.00",
+	"originalPrice": "¥ 127.00",
+	"discountedPrice": null,
+	"discountPercentage": null,
+	"price": "¥ 127.00",
+	"discount": null,
+	"isOnSale": false,
+	"isFree": false,
+
+	"releaseDate": "2015年5月19日",
+	"developer": "CD PROJEKT RED",
+	"publisher": "CD PROJEKT RED",
+
+	"reviewSummary": "好评如潮",
+	"reviewDescription": "基于 567,891 篇用户评测中有 97% 为好评",
+	"reviewScore": 97,
+	"reviewCount": 567891,
+
+	"headerImage": "https://cdn.akamai.steamstatic.com/steam/apps/292030/header.jpg",
+	"screenshots": [
+		"https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_61bd6b5ebf8aa5d1b5e2b4b6f7c5b8b5b8b5b8b5.1920x1080.jpg",
+		"https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_74dc7c8b0c5c1b5e2b4b6f7c5b8b5b8b5b8b5.1920x1080.jpg",
+		"https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_83e9b8c7b5e2b4b6f7c5b8b5b8b5b8b5b8b5.1920x1080.jpg"
+	],
+	"movies": [
+		{
+			"id": 2029441,
+			"name": "The Witcher 3: Wild Hunt Official Trailer",
+			"thumbnail": "https://cdn.akamai.steamstatic.com/steam/apps/2029441/movie.293x165.jpg",
+			"webm": {
+				"480": "https://cdn.akamai.steamstatic.com/steam/apps/2029441/movie480.webm",
+				"max": "https://cdn.akamai.steamstatic.com/steam/apps/2029441/movie_max.webm"
+			},
+			"highlight": true
+		}
+	],
+	"background": "https://cdn.akamai.steamstatic.com/steam/apps/292030/page_bg_generated_v6b.jpg",
+
+	"tags": [
+		"开放世界",
+		"RPG",
+		"故事丰富",
+		"选择重要",
+		"第三人称",
+		"幻想",
+		"成熟",
+		"动作RPG",
+		"大气",
+		"中世纪",
+		"单人",
+		"魔法",
+		"冒险",
+		"制作精良",
+		"剑与魔法",
+		"角色扮演",
+		"探索",
+		"黑暗",
+		"任务",
+		"怪物"
+	],
+	"genres": [
+		{
+			"id": "1",
+			"description": "动作"
+		},
+		{
+			"id": "3",
+			"description": "RPG"
+		},
+		{
+			"id": "25",
+			"description": "冒险"
+		}
+	],
+	"categories": [
+		{
+			"id": 2,
+			"description": "单人"
+		},
+		{
+			"id": 22,
+			"description": "Steam成就"
+		},
+		{
+			"id": 29,
+			"description": "Steam集换式卡牌"
+		},
+		{
+			"id": 23,
+			"description": "Steam云"
+		},
+		{
+			"id": 25,
+			"description": "统计"
+		}
+	],
+
+	"supportedPlatforms": ["Windows", "Mac", "Linux"],
+	"systemRequirements": {
+		"pc": {
+			"minimum": "最低配置:\n操作系统: Windows 7 64-bit\n处理器: Intel CPU Core i5-2500K 3.3GHz / AMD CPU Phenom II X4 940\n内存: 6 GB RAM\n显卡: Nvidia GPU GeForce GTX 660 / AMD GPU Radeon HD 7870\n DirectX 版本: 11\n存储空间: 需要 35 GB 可用空间",
+			"recommended": "推荐配置:\n操作系统: Windows 10 64-bit\n处理器: Intel CPU Core i7 3770 3.4 GHz / AMD CPU AMD FX-8350 4 GHz\n内存: 8 GB RAM\n显卡: Nvidia GPU GeForce GTX 770 / AMD GPU Radeon R9 290\n DirectX 版本: 11\n存储空间: 需要 35 GB 可用空间"
+		},
+		"mac": {
+			"minimum": "最低配置:\n操作系统: macOS 10.13\n处理器: Intel i5 2.7GHz\n内存: 8 GB RAM\n显卡: AMD Radeon R9 M370X 2GB / Nvidia GeForce GT 750M 2GB\n存储空间: 需要 35 GB 可用空间"
+		},
+		"linux": {
+			"minimum": "最低配置:\n操作系统: Ubuntu 16.04 LTS\n处理器: Intel CPU Core i5-2500K 3.3GHz / AMD Phenom II X4 940\n内存: 6 GB RAM\n显卡: Nvidia GeForce GTX 660 / AMD Radeon HD 7870\n存储空间: 需要 35 GB 可用空间"
+		}
+	},
+	"supportedLanguages": "简体中文, 繁体中文, 英语, 法语, 意大利语, 德语, 西班牙语, 阿拉伯语, 捷克语, 匈牙利语, 日语, 韩语, 波兰语, 葡萄牙语, 俄语, 土耳其语, 巴西葡萄牙语",
+	"controllerSupport": "完全支持手柄",
+
+	"achievementCount": "78",
+	"achievements": {
+		"total": 78,
+		"highlighted": [
+			{
+				"name": "巫师学徒",
+				"path": "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/apps/292030/achievement_icon_1.jpg"
+			},
+			{
+				"name": "巫师大师",
+				"path": "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/apps/292030/achievement_icon_2.jpg"
+			}
+		]
+	},
+	"dlcList": [
+		"巫师3：狂猎 - 石之心",
+		"巫师3：狂猎 - 血与酒",
+		"巫师3：狂猎 - 年度版"
+	],
+	"requiredAge": 18,
+	"contentDescriptors": {
+		"ids": [2, 5],
+		"notes": "本游戏包含暴力内容和成人主题"
+	},
+
+	"recommendations": {
+		"total": 567891
+	},
+	"supportInfo": {
+		"url": "https://support.cdprojektred.com/",
+		"email": "support@cdprojektred.com"
+	},
+
+	"isUpcoming": false,
+	"isEarlyAccess": false,
+
+	"steamAppData": {
+		"steam_appid": 292030,
+		"name": "The Witcher 3: Wild Hunt",
+		"detailed_description": "完整的Steam API响应数据...",
+		"about_the_game": "关于游戏的详细信息...",
+		"short_description": "简短描述...",
+		"supported_languages": "支持的语言列表...",
+		"header_image": "头图URL...",
+		"website": "https://thewitcher.com/",
+		"pc_requirements": {
+			"minimum": "最低配置要求...",
+			"recommended": "推荐配置要求..."
+		},
+		"mac_requirements": {
+			"minimum": "Mac最低配置要求..."
+		},
+		"linux_requirements": {
+			"minimum": "Linux最低配置要求..."
+		},
+		"developers": ["CD PROJEKT RED"],
+		"publishers": ["CD PROJEKT RED"],
+		"price_overview": {
+			"currency": "CNY",
+			"initial": 12700,
+			"final": 12700,
+			"discount_percent": 0
+		},
+		"packages": [70631],
+		"package_groups": [
+			{
+				"name": "default",
+				"title": "购买 The Witcher 3: Wild Hunt",
+				"description": "",
+				"selection_text": "选择购买选项",
+				"save_text": "",
+				"display_type": 0,
+				"is_recurring_subscription": "false",
+				"subs": [
+					{
+						"packageid": 70631,
+						"percent_savings_text": "",
+						"percent_savings": 0,
+						"option_text": "The Witcher 3: Wild Hunt - ¥ 127.00",
+						"option_description": "",
+						"can_get_free_license": "0",
+						"is_free_license": false,
+						"price_in_cents_with_discount": 12700
+					}
+				]
+			}
+		],
+		"platforms": {
+			"windows": true,
+			"mac": true,
+			"linux": true
+		},
+		"metacritic": {
+			"score": 93,
+			"url": "https://www.metacritic.com/game/pc/the-witcher-3-wild-hunt?ftag=MCD-06-10aaa1f"
+		},
+		"categories": [
+			{
+				"id": 2,
+				"description": "单人"
+			},
+			{
+				"id": 22,
+				"description": "Steam成就"
+			}
+		],
+		"genres": [
+			{
+				"id": "1",
+				"description": "动作"
+			},
+			{
+				"id": "3",
+				"description": "RPG"
+			}
+		],
+		"screenshots": [
+			{
+				"id": 0,
+				"path_thumbnail": "https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_61bd6b5ebf8aa5d1b5e2b4b6f7c5b8b5b8b5b8b5.600x338.jpg",
+				"path_full": "https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_61bd6b5ebf8aa5d1b5e2b4b6f7c5b8b5b8b5b8b5.1920x1080.jpg"
+			}
+		],
+		"movies": [
+			{
+				"id": 2029441,
+				"name": "The Witcher 3: Wild Hunt Official Trailer",
+				"thumbnail": "https://cdn.akamai.steamstatic.com/steam/apps/2029441/movie.293x165.jpg",
+				"webm": {
+					"480": "https://cdn.akamai.steamstatic.com/steam/apps/2029441/movie480.webm",
+					"max": "https://cdn.akamai.steamstatic.com/steam/apps/2029441/movie_max.webm"
+				},
+				"highlight": true
+			}
+		],
+		"recommendations": {
+			"total": 567891
+		},
+		"achievements": {
+			"total": 78,
+			"highlighted": [
+				{
+					"name": "巫师学徒",
+					"path": "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/apps/292030/achievement_icon_1.jpg"
+				}
+			]
+		},
+		"release_date": {
+			"coming_soon": false,
+			"date": "2015年5月19日"
+		},
+		"support_info": {
+			"url": "https://support.cdprojektred.com/",
+			"email": "support@cdprojektred.com"
+		},
+		"background": "https://cdn.akamai.steamstatic.com/steam/apps/292030/page_bg_generated_v6b.jpg",
+		"content_descriptors": {
+			"ids": [2, 5],
+			"notes": "本游戏包含暴力内容和成人主题"
+		}
+	},
+	"scrapedAt": "2024-01-15T10:30:00.000Z",
+	"dataSource": "steam_store_page"
+}

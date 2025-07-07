@@ -1,44 +1,131 @@
-import { OpenAPIHono } from '@hono/zod-openapi'
-import { apiReference, Scalar } from '@scalar/hono-api-reference'
-import { cors } from 'hono/cors'
-import { timing } from 'hono/timing'
-import { renderer } from './renderer'
-import { SteamService } from './steam-service'
-import { games, health, steam } from './routes'
-import type { ScheduledEvent, ExecutionContext } from '@cloudflare/workers-types'
-import type { AppBindings } from './types'
-import { createEnvHelper } from './utils/env'
-import { drizzle } from 'drizzle-orm/d1'
-import * as schema from './db/schema'
+import type {
+	ExecutionContext,
+	ScheduledEvent,
+} from "@cloudflare/workers-types"
+import { OpenAPIHono } from "@hono/zod-openapi"
+import { Scalar } from "@scalar/hono-api-reference"
+import { drizzle } from "drizzle-orm/d1"
+import { cors } from "hono/cors"
+import { timing } from "hono/timing"
+import * as schema from "./db/schema"
+import { renderer } from "./renderer"
+import { games, health, steam } from "./routes"
+import { SteamService } from "./steam-service"
+import type { AppBindings } from "./types"
+import { createEnvHelper } from "./utils/env"
+
+// 结构化日志工具函数
+// biome-ignore lint/suspicious/noExplicitAny: <logInfo>
+function logInfo(message: string, context?: Record<string, any>) {
+	console.log(
+		JSON.stringify({
+			level: "info",
+			message,
+			timestamp: new Date().toISOString(),
+			...context,
+		}),
+	)
+}
+
+function logError(
+	message: string,
+	error?: Error,
+	// biome-ignore lint/suspicious/noExplicitAny: <logError>
+	context?: Record<string, any>,
+) {
+	console.error(
+		JSON.stringify({
+			level: "error",
+			message,
+			error: error?.message,
+			stack: error?.stack,
+			timestamp: new Date().toISOString(),
+			...context,
+		}),
+	)
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: <logDebug>
+function logDebug(message: string, context?: Record<string, any>) {
+	console.log(
+		JSON.stringify({
+			level: "debug",
+			message,
+			timestamp: new Date().toISOString(),
+			...context,
+		}),
+	)
+}
 
 // 创建 OpenAPI Hono 应用实例
 const app = new OpenAPIHono<{ Bindings: AppBindings }>({
-  defaultHook: (result, c) => {
-    // 统一错误处理
-    if (!result.success) {
-      return c.json(
-        {
-          success: false,
-          error: 'Validation Error',
-          message: result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
-        },
-        400
-      )
-    }
-  }
+	defaultHook: (result, c) => {
+		// 统一错误处理
+		if (!result.success) {
+			logError("API 验证错误", undefined, {
+				path: c.req.path,
+				method: c.req.method,
+				errors: result.error.errors.map(
+					(e) => `${e.path.join(".")}: ${e.message}`,
+				),
+			})
+
+			return c.json(
+				{
+					success: false,
+					error: "Validation Error",
+					message: result.error.errors
+						.map((e) => `${e.path.join(".")}: ${e.message}`)
+						.join(", "),
+				},
+				400,
+			)
+		}
+	},
 })
 
 // === 中间件配置 ===
 
+// 请求日志中间件
+app.use("*", async (c, next) => {
+	const start = Date.now()
+	const method = c.req.method
+	const path = c.req.path
+	const userAgent = c.req.header("User-Agent") || "unknown"
+
+	logInfo("请求开始", {
+		method,
+		path,
+		userAgent,
+		ip: c.req.header("CF-Connecting-IP") || "unknown",
+	})
+
+	await next()
+
+	const duration = Date.now() - start
+	const status = c.res.status
+
+	logInfo("请求完成", {
+		method,
+		path,
+		status,
+		duration: `${duration}ms`,
+		success: status < 400,
+	})
+})
+
 // CORS 配置
-app.use('*', cors({
-  origin: '*',
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-}))
+app.use(
+	"*",
+	cors({
+		origin: "*",
+		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		allowHeaders: ["Content-Type", "Authorization"],
+	}),
+)
 
 // 性能监控
-app.use('*', timing())
+app.use("*", timing())
 
 // 渲染器
 app.use(renderer)
@@ -46,62 +133,65 @@ app.use(renderer)
 // === OpenAPI 文档配置 ===
 
 // OpenAPI 规范 - 动态获取当前域名
-app.doc('/openapi.json', (c) => {
-  // 直接从请求URL获取域名
-  const currentOrigin = new URL(c.req.url).origin
-  console.info(currentOrigin)
-  
-  return {
-    openapi: '3.1.0',
-    info: {
-      title: 'Steam Fetch API',
-      version: '1.0.0',
-      description: '一个用于获取和管理 Steam 游戏信息的 API 服务',
-      contact: {
-        name: 'API Support',
-        email: 'support@example.com',
-      },
-      license: {
-        name: 'MIT',
-        url: 'https://opensource.org/licenses/MIT',
-      },
-    },
-    servers: [
-      {
-        url: currentOrigin,
-        description: 'Current server',
-      },
-    ],
-    tags: [
-      {
-        name: 'Steam',
-        description: 'Steam API 相关接口',
-      },
-      {
-        name: 'Games',
-        description: '游戏数据管理接口',
-      },
-      {
-        name: 'System',
-        description: '系统健康检查接口',
-      },
-    ],
-  }
+app.doc("/openapi.json", (c) => {
+	// 直接从请求URL获取域名
+	const currentOrigin = new URL(c.req.url).origin
+	logDebug("生成 OpenAPI 文档", { origin: currentOrigin })
+
+	return {
+		openapi: "3.1.0",
+		info: {
+			title: "Steam Fetch API",
+			version: "1.0.0",
+			description: "一个用于获取和管理 Steam 游戏信息的 API 服务",
+			contact: {
+				name: "API Support",
+				email: "support@example.com",
+			},
+			license: {
+				name: "MIT",
+				url: "https://opensource.org/licenses/MIT",
+			},
+		},
+		servers: [
+			{
+				url: currentOrigin,
+				description: "Current server",
+			},
+		],
+		tags: [
+			{
+				name: "Steam",
+				description: "Steam API 相关接口",
+			},
+			{
+				name: "Games",
+				description: "游戏数据管理接口",
+			},
+			{
+				name: "System",
+				description: "系统健康检查接口",
+			},
+		],
+	}
 })
 
 // Scalar API 文档界面
-app.get('/docs', Scalar({
-  url: '/openapi.json',
-  theme: 'default',
-}))
+app.get(
+	"/docs",
+	Scalar({
+		url: "/openapi.json",
+		theme: "default",
+	}),
+)
 
 // === 主页路由 ===
 
-app.get('/', (c) => {
-  // 直接从请求URL获取当前域名
-  const currentDomain = new URL(c.req.url).origin
-  
-  return c.html(`
+app.get("/", (c) => {
+	// 直接从请求URL获取当前域名
+	const currentDomain = new URL(c.req.url).origin
+
+	return c.html(`
     <!DOCTYPE html>
     <html lang="zh-CN">
     <head>
@@ -253,78 +343,151 @@ app.get('/', (c) => {
 // === 路由挂载 ===
 
 // 挂载路由模块
-app.route('/', games)
-app.route('/', health)
-app.route('/', steam)
+app.route("/", games)
+app.route("/", health)
+app.route("/", steam)
 
 // === 错误处理 ===
 
 // 404 处理
 app.notFound((c) => {
-  return c.json({
-    success: false,
-    error: 'Not Found',
-    message: '请求的资源不存在，请检查 API 路径是否正确'
-  }, 404)
+	return c.json(
+		{
+			success: false,
+			error: "Not Found",
+			message: "请求的资源不存在，请检查 API 路径是否正确",
+		},
+		404,
+	)
 })
 
 // 全局错误处理
 app.onError((err, c) => {
-  console.error('API Error:', err)
-  
-  return c.json({
-    success: false,
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' ? err.message : '服务器内部错误'
-  }, 500)
+	logError("API 全局错误", err, {
+		path: c.req.path,
+		method: c.req.method,
+		userAgent: c.req.header("User-Agent"),
+	})
+
+	return c.json(
+		{
+			success: false,
+			error: "Internal Server Error",
+			message:
+				process.env.NODE_ENV === "development" ? err.message : "服务器内部错误",
+		},
+		500,
+	)
 })
 
 // === Worker 导出 ===
 
 export default {
-  fetch: app.fetch,
-  
-  // 定时任务：同步 Steam 游戏数据
-  async scheduled(event: ScheduledEvent, env: AppBindings, ctx: ExecutionContext) {
-    // todo 暂时关闭定时任务
-    // ctx.waitUntil(syncSteamGames(env))
-    console.log(`定时任务触发时间: ${new Date(event.scheduledTime).toISOString()}`)
-  },
+	fetch: app.fetch,
+
+	// 定时任务：同步 Steam 游戏数据
+	async scheduled(
+		event: ScheduledEvent,
+		env: AppBindings,
+		ctx: ExecutionContext,
+	) {
+		const scheduledTime = new Date(event.scheduledTime).toISOString()
+
+		logInfo("定时任务开始执行", {
+			scheduledTime,
+			cron: event.cron,
+			type: "scheduled",
+		})
+
+		try {
+			// todo 暂时关闭定时任务
+			// ctx.waitUntil(syncSteamGames(env))
+
+			logInfo("定时任务执行完成", {
+				scheduledTime,
+				status: "skipped",
+				reason: "暂时关闭",
+			})
+		} catch (error) {
+			logError(
+				"定时任务执行失败",
+				error instanceof Error ? error : new Error(String(error)),
+				{
+					scheduledTime,
+					cron: event.cron,
+				},
+			)
+		}
+	},
 }
 
 // === 定时任务函数 ===
 
 async function syncSteamGames(env: AppBindings) {
-  const envHelper = createEnvHelper(env)
-  const steamService = new SteamService(
-    envHelper.getSteamApiKey(),
-    {
-      rateLimit: envHelper.getSteamRateLimit(),
-      cacheTTL: envHelper.getSteamCacheTTL()
-    }
-  )
-  const db = drizzle(env.DB, { schema })
+	const envHelper = createEnvHelper(env)
+	const steamService = new SteamService(envHelper.getSteamApiKey(), {
+		rateLimit: envHelper.getSteamRateLimit(),
+		cacheTTL: envHelper.getSteamCacheTTL(),
+	})
+	const db = drizzle(env.DB, { schema })
+	const syncId = Date.now().toString() // 用于追踪这次同步任务
 
-  try {
-    console.log('开始同步 Steam 游戏列表...')
-    const apps = await steamService.getAllGames()
-    console.log(`获取到 ${apps.length} 个游戏`)
+	try {
+		logInfo("开始同步 Steam 游戏列表", {
+			syncId,
+			steamRateLimit: envHelper.getSteamRateLimit(),
+			cacheTTL: envHelper.getSteamCacheTTL(),
+		})
 
-    const batchSize = 1000 // 每批插入1000条
-    for (let i = 0; i < apps.length; i += batchSize) {
-      const batch = apps.slice(i, i + batchSize)
-      await db.insert(schema.games).values(
-        batch.map(app => ({
-          appid: app.appid,
-          name: app.name,
-          lastFetchedAt: new Date()
-        }))
-      ).onConflictDoNothing()
-      console.log(`已处理 ${i + batch.length} / ${apps.length} 个游戏`)
-    }
+		const apps = await steamService.getAllGames()
+		logInfo("获取 Steam 游戏列表成功", {
+			syncId,
+			totalGames: apps.length,
+		})
 
-    console.log('Steam 游戏列表同步完成')
-  } catch (error) {
-    console.error('同步 Steam 游戏列表失败:', error)
-  }
+		const batchSize = 1000 // 每批插入1000条
+		let processedCount = 0
+
+		for (let i = 0; i < apps.length; i += batchSize) {
+			const batch = apps.slice(i, i + batchSize)
+
+			await db
+				.insert(schema.games)
+				.values(
+					batch.map((app) => ({
+						appid: app.appid,
+						name: app.name,
+						lastFetchedAt: new Date(),
+					})),
+				)
+				.onConflictDoNothing()
+
+			processedCount += batch.length
+
+			logDebug("批量数据处理进度", {
+				syncId,
+				processed: processedCount,
+				total: apps.length,
+				progress: `${Math.round((processedCount / apps.length) * 100)}%`,
+				batchSize: batch.length,
+			})
+		}
+
+		logInfo("Steam 游戏列表同步完成", {
+			syncId,
+			totalProcessed: processedCount,
+			totalGames: apps.length,
+			batchSize,
+		})
+	} catch (error) {
+		logError(
+			"同步 Steam 游戏列表失败",
+			error instanceof Error ? error : new Error(String(error)),
+			{
+				syncId,
+				operation: "syncSteamGames",
+			},
+		)
+		throw error // 重新抛出错误以便上层处理
+	}
 }
