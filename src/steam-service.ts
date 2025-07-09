@@ -192,11 +192,10 @@ export class SteamService {
 		} else {
 			currency = "us"
 		}
-		// @ts-ignore
 		const appDetails = await this.steamAPI.getGameDetails(appid, {
 			language: language,
 			currency: currency,
-			filters: undefined,
+			filters: [],
 		})
 		return appDetails
 	}
