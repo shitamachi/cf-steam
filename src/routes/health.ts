@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute } from "@hono/zod-openapi"
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi"
 import { HealthResponseSchema } from "../schemas"
 import type { AppEnv } from "../types"
 
@@ -25,7 +25,7 @@ const healthCheckRoute = createRoute({
 
 // 健康检查端点
 app.openapi(healthCheckRoute, (c) => {
-	const startTime = Date.now()
+	const _startTime = Date.now()
 	const uptime = process.uptime ? process.uptime() : 0
 
 	return c.json(
