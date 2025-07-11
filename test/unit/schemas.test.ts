@@ -24,7 +24,10 @@ import { witcher3MockData, cs2MockData, cyberpunk2077MockData } from "../__mocks
 describe("数据结构验证", () => {
 	describe("GameSchema", () => {
 		it("应该验证完整的游戏数据结构", () => {
-			const validGameData = witcher3MockData
+			const validGameData = {
+				...witcher3MockData,
+				screenshots: witcher3MockData.screenshots?.map(s => (s as any).path_full)
+			}
 			
 			// 应该成功解析
 			expect(() => GameSchema.parse(validGameData)).not.toThrow()
@@ -249,7 +252,10 @@ describe("数据结构验证", () => {
 		it("应该验证游戏详情响应", () => {
 			const gameDetailsResponse = {
 				success: true,
-				data: witcher3MockData,
+				data: {
+					...witcher3MockData,
+					screenshots: witcher3MockData.screenshots?.map(s => (s as any).path_full)
+				},
 				message: "获取游戏详情成功"
 			}
 			

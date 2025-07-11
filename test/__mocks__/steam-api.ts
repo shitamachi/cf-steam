@@ -28,8 +28,8 @@ export const witcher3MockData: GameInfo = {
 	reviewCount: 547203,
 	headerImage: "https://cdn.akamai.steamstatic.com/steam/apps/292030/header.jpg",
 	screenshots: [
-		"https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_1.jpg",
-		"https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_2.jpg"
+		{ id: 0, path_thumbnail: "https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_1.jpg", path_full: "https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_1.jpg" },
+		{ id: 1, path_thumbnail: "https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_2.jpg", path_full: "https://cdn.akamai.steamstatic.com/steam/apps/292030/ss_2.jpg" }
 	],
 	tags: ["RPG", "开放世界", "故事丰富", "选择重要", "第三人称"],
 	supportedPlatforms: ["windows", "mac"],

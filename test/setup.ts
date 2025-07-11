@@ -66,8 +66,9 @@ function setupFetchMock() {
 		// Steam商店页面模拟
 		if (urlString.includes("store.steampowered.com")) {
 			const html = getHtmlResponseByUrl(urlString)
+			const status = html.includes("页面未找到") ? 404 : 200
 			return Promise.resolve(new Response(html, {
-				status: 200,
+				status,
 				headers: { "Content-Type": "text/html" }
 			}))
 		}

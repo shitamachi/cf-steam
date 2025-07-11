@@ -172,6 +172,11 @@ export class SteamService {
 				gameData = { ...gameData, ...webData }
 			}
 
+			// 如果在所有数据源之后仍然没有游戏名称，则认为获取失败
+			if (!gameData.name) {
+				return null
+			}
+
 			return GameSchema.parse(gameData)
 		} catch (error) {
 			console.error(`获取游戏 ${appid} 详情失败:`, error)

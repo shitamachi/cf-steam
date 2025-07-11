@@ -73,7 +73,13 @@ describe("SteamService", () => {
 			const mockGetAppList = vi.fn().mockRejectedValue(new Error("Steam API error"))
 			steamService["steamAPI"].getAppList = mockGetAppList
 
-			await expect(steamService.getAllGames()).rejects.toThrow("无法获取Steam游戏列表")
+			try {
+				await steamService.getAllGames()
+				// 如果没有抛出错误，则测试失败
+				expect.fail("Expected getAllGames to throw, but it did not.")
+			} catch (e: any) {
+				expect(e.message).toBe("无法获取Steam游戏列表")
+			}
 		})
 
 		it("应该处理空游戏列表", async () => {
@@ -266,7 +272,13 @@ describe("SteamService", () => {
 			const mockGetPlayers = vi.fn().mockRejectedValue(new Error("API error"))
 			steamService["steamAPI"].getGamePlayers = mockGetPlayers
 
-			await expect(steamService.getNumberOfCurrentPlayers(292030)).rejects.toThrow("无法获取游戏 292030 的在线玩家数量")
+			try {
+				await steamService.getNumberOfCurrentPlayers(292030)
+				// 如果没有抛出错误，则测试失败
+				expect.fail("Expected getNumberOfCurrentPlayers to throw, but it did not.")
+			} catch (e: any) {
+				expect(e.message).toBe("无法获取游戏 292030 的在线玩家数量")
+			}
 		})
 	})
 
@@ -315,10 +327,8 @@ describe("SteamService", () => {
 			}))
 
 			const gameData = await steamService.scrapeGamePage(292030)
-			// HTMLRewriter即使处理无效HTML也会返回基础数据结构（包含appid）
-			// 这是Cloudflare Workers环境的预期行为
-			expect(gameData).toBeDefined()
-			expect(gameData?.appid).toBe(292030)
+			// 对于无效的HTML，如果无法提取到游戏名称，服务应返回null
+			expect(gameData).toBeNull()
 		})
 
 		it("应该处理404响应", async () => {
