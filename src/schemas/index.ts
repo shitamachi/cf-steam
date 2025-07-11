@@ -133,11 +133,13 @@ export const GameUpdateSchema = z.object({
 	name: z.string().min(1).max(255).describe("新的游戏名称"),
 })
 
-export const GamesBatchCreateSchema = z
-	.array(GameCreateSchema)
-	.min(1)
-	.max(1000)
-	.describe("批量游戏数据")
+export const GamesBatchCreateSchema = z.object({
+	games: z
+		.array(GameCreateSchema)
+		.min(1)
+		.max(1000)
+		.describe("批量游戏数据"),
+})
 
 // === 响应 Schema ===
 
@@ -172,12 +174,18 @@ export const GameCreateResponseSchema = SuccessResponseSchema.extend({
 	}),
 })
 
-export const GamesBatchResponseSchema = SuccessResponseSchema.extend({
-	data: z.array(
+export const GamesBatchResponseSchema = z.object({
+	success: z.boolean(),
+	message: z.string().describe("处理结果消息"),
+	results: z.array(
 		GameSimpleSchema.extend({
 			id: z.number().optional().describe("数据库记录ID"),
 		}),
 	),
+	errors: z.array(z.object({
+		appid: z.number(),
+		error: z.string(),
+	})).optional(),
 	count: z.number().min(0).describe("成功处理的游戏数量"),
 })
 

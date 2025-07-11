@@ -342,7 +342,7 @@ app.get("/", (c) => {
 
 // === 路由挂载 ===
 
-// 挂载路由模块
+// 挂载路由模块 - 因为各路由已经定义了basePath，所以直接挂载到根路径
 app.route("/", games)
 app.route("/", health)
 app.route("/", steam)

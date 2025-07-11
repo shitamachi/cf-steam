@@ -79,34 +79,6 @@ const getPopularGamesRoute = createRoute({
 	},
 })
 
-app.openapi(getPopularGamesRoute, async (c) => {
-	try {
-		const { limit } = c.req.valid("query")
-		const steamService = c.var.steamService
-		const games = await steamService.getPopularGames(limit)
-
-		return c.json(
-			{
-				success: true as const,
-				data: games,
-				count: games.length,
-				message: "获取热门游戏成功",
-			},
-			200,
-		)
-	} catch (error) {
-		console.error("获取热门游戏失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取热门游戏失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
-})
-
 // 获取折扣游戏
 const getDiscountedGamesRoute = createRoute({
 	method: "get",
@@ -137,34 +109,6 @@ const getDiscountedGamesRoute = createRoute({
 	},
 })
 
-app.openapi(getDiscountedGamesRoute, async (c) => {
-	try {
-		const { limit } = c.req.valid("query")
-		const steamService = c.var.steamService
-		const games = await steamService.getDiscountedGames(limit)
-
-		return c.json(
-			{
-				success: true as const,
-				data: games,
-				count: games.length,
-				message: "获取折扣游戏成功",
-			},
-			200,
-		)
-	} catch (error) {
-		console.error("获取折扣游戏失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取折扣游戏失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
-})
-
 // 获取即将发行的游戏
 const getUpcomingGamesRoute = createRoute({
 	method: "get",
@@ -193,34 +137,6 @@ const getUpcomingGamesRoute = createRoute({
 			},
 		},
 	},
-})
-
-app.openapi(getUpcomingGamesRoute, async (c) => {
-	try {
-		const { limit } = c.req.valid("query")
-		const steamService = c.var.steamService
-		const games = await steamService.getUpcomingGames(limit)
-
-		return c.json(
-			{
-				success: true as const,
-				data: games,
-				count: games.length,
-				message: "获取即将发行的游戏成功",
-			},
-			200,
-		)
-	} catch (error) {
-		console.error("获取即将发行的游戏失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取即将发行的游戏失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
 })
 
 // 搜索游戏
@@ -261,34 +177,6 @@ const searchGamesRoute = createRoute({
 	},
 })
 
-app.openapi(searchGamesRoute, async (c) => {
-	try {
-		const { q, limit } = c.req.valid("query")
-		const steamService = c.var.steamService
-		const games = await steamService.searchGames(q, limit)
-
-		return c.json(
-			{
-				success: true as const,
-				data: games,
-				count: games.length,
-				message: `搜索游戏 "${q}" 成功`,
-			},
-			200,
-		)
-	} catch (error) {
-		console.error("搜索游戏失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "搜索游戏失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
-})
-
 // 按类别获取游戏
 const getGamesByCategoryRoute = createRoute({
 	method: "get",
@@ -318,35 +206,6 @@ const getGamesByCategoryRoute = createRoute({
 			},
 		},
 	},
-})
-
-app.openapi(getGamesByCategoryRoute, async (c) => {
-	try {
-		const { category } = c.req.valid("param")
-		const { limit } = c.req.valid("query")
-		const steamService = c.var.steamService
-		const games = await steamService.getGamesByCategory(category, limit)
-
-		return c.json(
-			{
-				success: true as const,
-				data: games,
-				count: games.length,
-				message: `获取 ${category} 类别游戏成功`,
-			},
-			200,
-		)
-	} catch (error) {
-		console.error("获取类别游戏失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取类别游戏失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
 })
 
 const getGameDetailsRoute = createRoute({
@@ -388,50 +247,12 @@ const getGameDetailsRoute = createRoute({
 	},
 })
 
-app.openapi(getGameDetailsRoute, async (c) => {
-	try {
-		const { appid } = c.req.valid("param")
-		const steamService = c.var.steamService
-		const game = await steamService.getGameDetails(appid)
-
-		if (!game) {
-			return c.json(
-				{
-					success: false as const,
-					error: "游戏不存在",
-					message: `找不到 ID 为 ${appid} 的游戏`,
-				},
-				404,
-			)
-		}
-
-		return c.json(
-			{
-				success: true as const,
-				data: game,
-				message: `获取游戏 ${appid} 详情成功`,
-			},
-			200,
-		)
-	} catch (error) {
-		console.error("获取游戏详情失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取游戏详情失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
-})
-
 // 批量插入游戏数据
 const batchCreateGamesRoute = createRoute({
 	method: "post",
 	path: "/batch",
 	summary: "批量插入游戏数据",
-	description: "批量插入或更新游戏数据到数据库",
+	description: "批量插入多个游戏数据到数据库",
 	tags: ["Games"],
 	request: {
 		body: {
@@ -443,8 +264,16 @@ const batchCreateGamesRoute = createRoute({
 		},
 	},
 	responses: {
-		200: {
-			description: "成功批量处理游戏数据",
+		201: {
+			description: "成功批量插入游戏数据",
+			content: {
+				"application/json": {
+					schema: GamesBatchResponseSchema,
+				},
+			},
+		},
+		207: {
+			description: "部分成功插入",
 			content: {
 				"application/json": {
 					schema: GamesBatchResponseSchema,
@@ -468,70 +297,6 @@ const batchCreateGamesRoute = createRoute({
 			},
 		},
 	},
-})
-
-app.openapi(batchCreateGamesRoute, async (c) => {
-	try {
-		const games = c.req.valid("json")
-		const db = c.var.db
-
-		// 使用事务批量插入，性能优化
-		const result = await db.transaction(async (tx) => {
-			const inserted = []
-			const batchSize = 100 // 每批插入100条，避免单次操作过大
-
-			for (let i = 0; i < games.length; i += batchSize) {
-				const batch = games.slice(i, i + batchSize)
-				const batchResult = await tx
-					.insert(schema.games)
-					.values(
-						batch.map((game) => ({
-							appid: game.appid,
-							name: game.name,
-							lastFetchedAt: game.lastFetchedAt
-								? new Date(game.lastFetchedAt * 1000)
-								: new Date(),
-						})),
-					)
-					.onConflictDoUpdate({
-						target: schema.games.appid,
-						set: {
-							name: schema.games.name,
-							lastFetchedAt: new Date(),
-						},
-					})
-					.returning()
-
-				inserted.push(...batchResult)
-			}
-
-			return inserted
-		})
-
-		return c.json(
-			{
-				success: true as const,
-				data: result.map((game) => ({
-					appid: game.appid,
-					name: game.name,
-					lastFetchedAt: game.lastFetchedAt?.toISOString(),
-				})),
-				count: result.length,
-				message: `成功批量保存 ${result.length} 个游戏数据`,
-			},
-			200,
-		)
-	} catch (error) {
-		console.error("批量保存游戏数据失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "批量保存游戏数据失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
 })
 
 // 新增单个游戏数据
@@ -576,54 +341,6 @@ const createGameRoute = createRoute({
 			},
 		},
 	},
-})
-
-app.openapi(createGameRoute, async (c) => {
-	try {
-		const gameData = c.req.valid("json")
-		const db = c.var.db
-
-		const result = await db
-			.insert(schema.games)
-			.values({
-				appid: gameData.appid,
-				name: gameData.name,
-				lastFetchedAt: gameData.lastFetchedAt
-					? new Date(gameData.lastFetchedAt * 1000)
-					: new Date(),
-			})
-			.onConflictDoUpdate({
-				target: schema.games.appid,
-				set: {
-					name: schema.games.name,
-					lastFetchedAt: new Date(),
-				},
-			})
-			.returning()
-
-		return c.json(
-			{
-				success: true as const,
-				data: {
-					appid: result[0].appid,
-					name: result[0].name,
-					lastFetchedAt: result[0].lastFetchedAt?.toISOString(),
-				},
-				message: `成功保存游戏 ${gameData.appid}`,
-			},
-			201,
-		)
-	} catch (error) {
-		console.error("保存游戏数据失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "保存游戏数据失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
 })
 
 // 更新游戏数据
@@ -673,57 +390,6 @@ const updateGameRoute = createRoute({
 	},
 })
 
-app.openapi(updateGameRoute, async (c) => {
-	try {
-		const { appid } = c.req.valid("param")
-		const updateData = c.req.valid("json")
-		const db = c.var.db
-
-		const result = await db
-			.update(schema.games)
-			.set({
-				name: updateData.name,
-				lastFetchedAt: new Date(),
-			})
-			.where(eq(schema.games.appid, appid))
-			.returning()
-
-		if (result.length === 0) {
-			return c.json(
-				{
-					success: false as const,
-					error: "游戏不存在",
-					message: `找不到ID为 ${appid} 的游戏`,
-				},
-				404,
-			)
-		}
-
-		return c.json(
-			{
-				success: true as const,
-				data: {
-					appid: result[0].appid,
-					name: result[0].name,
-					lastFetchedAt: result[0].lastFetchedAt?.toISOString(),
-				},
-				message: `成功更新游戏 ${appid} 的信息`,
-			},
-			200,
-		)
-	} catch (error) {
-		console.error("更新游戏数据失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "更新游戏数据失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
-	}
-})
-
 // 查询游戏数据
 const queryGamesRoute = createRoute({
 	method: "get",
@@ -760,6 +426,318 @@ const queryGamesRoute = createRoute({
 			},
 		},
 	},
+})
+
+// 获取本地游戏数据（分页）
+const getLocalGamesRoute = createRoute({
+	method: "get",
+	path: "/local",
+	summary: "获取本地游戏数据",
+	description: "分页获取数据库中存储的游戏数据",
+	tags: ["Games"],
+	request: {
+		query: PaginationQuerySchema,
+	},
+	responses: {
+		200: {
+			description: "成功获取本地游戏数据",
+			content: {
+				"application/json": {
+					schema: SimpleGamesResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "服务器内部错误",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+})
+
+// === 路由注册 ===
+// 注意：必须将具体路径的路由放在参数化路径之前，避免路由冲突
+
+app.openapi(getPopularGamesRoute, async (c) => {
+	try {
+		const { limit } = c.req.valid("query")
+		const steamService = c.var.steamService
+		const games = await steamService.getPopularGames(limit)
+
+		return c.json(
+			{
+				success: true as const,
+				data: games,
+				count: games.length,
+				message: "获取热门游戏成功",
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("获取热门游戏失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "获取热门游戏失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+app.openapi(getDiscountedGamesRoute, async (c) => {
+	try {
+		const { limit } = c.req.valid("query")
+		const steamService = c.var.steamService
+		const games = await steamService.getDiscountedGames(limit)
+
+		return c.json(
+			{
+				success: true as const,
+				data: games,
+				count: games.length,
+				message: "获取折扣游戏成功",
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("获取折扣游戏失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "获取折扣游戏失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+app.openapi(getUpcomingGamesRoute, async (c) => {
+	try {
+		const { limit } = c.req.valid("query")
+		const steamService = c.var.steamService
+		const games = await steamService.getUpcomingGames(limit)
+
+		return c.json(
+			{
+				success: true as const,
+				data: games,
+				count: games.length,
+				message: "获取即将发行的游戏成功",
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("获取即将发行的游戏失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "获取即将发行的游戏失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+app.openapi(searchGamesRoute, async (c) => {
+	try {
+		const { q, limit } = c.req.valid("query")
+		const steamService = c.var.steamService
+		const games = await steamService.searchGames(q, limit)
+
+		return c.json(
+			{
+				success: true as const,
+				data: games,
+				count: games.length,
+				message: `搜索 "${q}" 找到 ${games.length} 个游戏`,
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("搜索游戏失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "搜索游戏失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+app.openapi(getGamesByCategoryRoute, async (c) => {
+	try {
+		const { category } = c.req.valid("param")
+		const { limit } = c.req.valid("query")
+		const steamService = c.var.steamService
+		const games = await steamService.getGamesByCategory(category, limit)
+
+		return c.json(
+			{
+				success: true as const,
+				data: games,
+				count: games.length,
+				message: `获取类别 "${category}" 的游戏成功`,
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("获取分类游戏失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "获取分类游戏失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+app.openapi(batchCreateGamesRoute, async (c) => {
+	try {
+		const { games } = c.req.valid("json")
+		const db = c.var.db
+		
+		// 限制批量操作大小
+		if (games.length > 100) {
+			return c.json(
+				{
+					success: false as const,
+					error: "批量操作限制",
+					message: "批量插入不能超过100个游戏",
+				},
+				400,
+			)
+		}
+
+		const results = []
+		const errors = []
+
+		for (const gameData of games) {
+			try {
+				const result = await db
+					.insert(schema.games)
+					.values({
+						appid: gameData.appid,
+						name: gameData.name,
+						lastFetchedAt: new Date(),
+					})
+					.onConflictDoUpdate({
+						target: schema.games.appid,
+						set: {
+							name: gameData.name,
+							lastFetchedAt: new Date(),
+						},
+					})
+					.returning()
+
+				results.push({
+					appid: result[0].appid,
+					name: result[0].name,
+					lastFetchedAt: result[0].lastFetchedAt?.toISOString(),
+				})
+			} catch (error) {
+				errors.push({
+					appid: gameData.appid,
+					error: error instanceof Error ? error.message : "未知错误",
+				})
+			}
+		}
+
+		const hasErrors = errors.length > 0
+		const hasSuccess = results.length > 0
+
+		if (hasErrors && !hasSuccess) {
+			return c.json(
+				{
+					success: false as const,
+					error: "批量插入失败",
+					message: "所有游戏插入失败",
+					results: [],
+					errors,
+				},
+				500,
+			)
+		}
+
+		return c.json(
+			{
+				success: hasErrors ? false : true,
+				message: hasErrors 
+					? `批量插入部分成功：${results.length} 成功，${errors.length} 失败`
+					: `批量插入完全成功：${results.length} 个游戏`,
+				results,
+				errors: hasErrors ? errors : undefined,
+				count: results.length,
+			},
+			hasErrors ? 207 : 201,
+		)
+	} catch (error) {
+		console.error("批量插入游戏数据失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "批量插入游戏数据失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+app.openapi(createGameRoute, async (c) => {
+	try {
+		const gameData = c.req.valid("json")
+		const db = c.var.db
+
+		const result = await db
+			.insert(schema.games)
+			.values({
+				appid: gameData.appid,
+				name: gameData.name,
+				lastFetchedAt: new Date(),
+			})
+			.onConflictDoUpdate({
+				target: schema.games.appid,
+				set: {
+					name: gameData.name,
+					lastFetchedAt: new Date(),
+				},
+			})
+			.returning()
+
+		return c.json(
+			{
+				success: true as const,
+				data: {
+					appid: result[0].appid,
+					name: result[0].name,
+					lastFetchedAt: result[0].lastFetchedAt?.toISOString(),
+				},
+				message: `成功创建游戏: ${result[0].name}`,
+			},
+			201,
+		)
+	} catch (error) {
+		console.error("创建游戏数据失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "创建游戏数据失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
 })
 
 app.openapi(queryGamesRoute, async (c) => {
@@ -807,36 +785,6 @@ app.openapi(queryGamesRoute, async (c) => {
 	}
 })
 
-// 获取本地游戏数据（分页）
-const getLocalGamesRoute = createRoute({
-	method: "get",
-	path: "/local",
-	summary: "获取本地游戏数据",
-	description: "分页获取数据库中存储的游戏数据",
-	tags: ["Games"],
-	request: {
-		query: PaginationQuerySchema,
-	},
-	responses: {
-		200: {
-			description: "成功获取本地游戏数据",
-			content: {
-				"application/json": {
-					schema: SimpleGamesResponseSchema,
-				},
-			},
-		},
-		500: {
-			description: "服务器内部错误",
-			content: {
-				"application/json": {
-					schema: ErrorResponseSchema,
-				},
-			},
-		},
-	},
-})
-
 app.openapi(getLocalGamesRoute, async (c) => {
 	try {
 		const { limit, offset } = c.req.valid("query")
@@ -868,6 +816,95 @@ app.openapi(getLocalGamesRoute, async (c) => {
 			{
 				success: false as const,
 				error: "获取本地游戏数据失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+app.openapi(getGameDetailsRoute, async (c) => {
+	try {
+		const { appid } = c.req.valid("param")
+		const steamService = c.var.steamService
+		const game = await steamService.getGameDetails(appid)
+
+		if (!game) {
+			return c.json(
+				{
+					success: false as const,
+					error: "游戏不存在",
+					message: `找不到 ID 为 ${appid} 的游戏`,
+				},
+				404,
+			)
+		}
+
+		return c.json(
+			{
+				success: true as const,
+				data: game,
+				message: `获取游戏 ${appid} 详情成功`,
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("获取游戏详情失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "获取游戏详情失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+app.openapi(updateGameRoute, async (c) => {
+	try {
+		const { appid } = c.req.valid("param")
+		const updateData = c.req.valid("json")
+		const db = c.var.db
+
+		const result = await db
+			.update(schema.games)
+			.set({
+				name: updateData.name,
+				lastFetchedAt: new Date(),
+			})
+			.where(eq(schema.games.appid, appid))
+			.returning()
+
+		if (result.length === 0) {
+			return c.json(
+				{
+					success: false as const,
+					error: "游戏不存在",
+					message: `找不到ID为 ${appid} 的游戏`,
+				},
+				404,
+			)
+		}
+
+		return c.json(
+			{
+				success: true as const,
+				data: {
+					appid: result[0].appid,
+					name: result[0].name,
+					lastFetchedAt: result[0].lastFetchedAt?.toISOString(),
+				},
+				message: `成功更新游戏 ${appid} 的信息`,
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("更新游戏数据失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "更新游戏数据失败",
 				message: error instanceof Error ? error.message : "未知错误",
 			},
 			500,
