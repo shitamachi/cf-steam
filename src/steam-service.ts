@@ -201,10 +201,34 @@ export class SteamService {
 	}
 
 	/**
+	 * 获取当前在线玩家数量
+	 * @param appid
+	 */
+	async getNumberOfCurrentPlayers(appid: number): Promise<number> {
+		try {
+			return await this.steamAPI.getGamePlayers(appid)
+		} catch (error) {
+			console.error(`获取游戏 ${appid} 在线玩家数量失败:`, error)
+			throw new Error(`无法获取游戏 ${appid} 的在线玩家数量`)
+		}
+	}
+
+	/**
 	 * 获取 steam 商店页 url
 	 */
 	getGameStoreUrl(appid: number, l: string = "schinese"): string {
 		return `${this.baseURL}/app/${appid}/?l=${l}`
+	}
+
+	/**
+	 * 获取 steam 社区页 url
+	 */
+	getGameCommunityUrl(appid: number, section: string = ""): string {
+		const communityBaseURL = "https://steamcommunity.com"
+		if (section) {
+			return `${communityBaseURL}/app/${appid}/${section}`
+		}
+		return `${communityBaseURL}/app/${appid}`
 	}
 
 	/**

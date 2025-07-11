@@ -10,7 +10,8 @@
 		"deploy": "pnpm run build && wrangler deploy",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"env:setup": "echo 'Please copy .dev.vars.example to .dev.vars and configure your environment variables'",
-		"test": "vitest"
+		"test": "vitest",
+		"test:all": "vitest run"
 	},
 	"dependencies": {
 		"@hono/zod-openapi": "^0.19.9",

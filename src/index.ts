@@ -382,6 +382,8 @@ app.onError((err, c) => {
 
 // === Worker 导出 ===
 
+export { app }
+
 export default {
 	fetch: app.fetch,
 

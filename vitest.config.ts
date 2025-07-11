@@ -9,7 +9,13 @@ export default defineWorkersConfig({
 		poolOptions: {
 			workers: {
 				wrangler: { configPath: "./wrangler.jsonc" },
+				miniflare: {
+					bindings: {
+						STEAM_API_KEY: "TEST_KEY",
+					},
+					d1Databases: ["DB"],
+				},
 			},
 		},
 	},
-}) 
+})

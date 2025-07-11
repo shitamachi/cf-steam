@@ -298,4 +298,207 @@ app.openapi(getGameDetailsRoute, async (c) => {
 	}
 })
 
+// get current online players
+const getCurrentOnlinePlayersRoute = createRoute({
+	method: "get",
+	path: "/apps/{appid}/players",
+	summary: "获取游戏当前在线人数",
+	description: "从 Steam API 获取游戏的当前在线人数",
+	tags: ["Steam"],
+	request: {
+		params: z.object({
+			appid: z.coerce
+				.number()
+				.int()
+				.positive()
+				.describe("游戏的 appid")
+				.openapi({
+					param: {
+						name: "appid",
+						in: "path",
+						required: true,
+						description: "要获取在线人数的游戏的 appid",
+					},
+					example: 578080, // PUBG: BATTLEGROUNDS
+				}),
+		}),
+	},
+	responses: {
+		200: {
+			description: "成功获取游戏当前在线人数",
+			content: {
+				"application/json": {
+					schema: SuccessResponseSchema.extend({
+						data: z.object({
+							players: z.number(),
+						}),
+					}),
+				},
+			},
+		},
+		404: {
+			description: "未找到游戏",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+		500: {
+			description: "服务器内部错误",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+})
+
+app.openapi(getCurrentOnlinePlayersRoute, async (c) => {
+	try {
+		const { appid } = c.req.valid("param")
+		const steamService = c.var.steamService
+		const players = await steamService.getNumberOfCurrentPlayers(appid)
+
+		return c.json(
+			{
+				success: true as const,
+				data: {
+					players,
+				},
+				message: "获取游戏当前在线人数成功",
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("获取游戏当前在线人数失败:", error)
+		// @ts-ignore
+		if (error.message.includes("404")) {
+			return c.json(
+				{
+					success: false as const,
+					error: "未找到游戏",
+					message: `未找到 appid 为 ${c.req.param("appid")} 的游戏`,
+				},
+				404,
+			)
+		}
+		return c.json(
+			{
+				success: false as const,
+				error: "获取游戏当前在线人数失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+// 定义获取游戏社区页原始 HTML 的路由
+const getGameCommunityRawHtmlRoute = createRoute({
+	method: "get",
+	path: "/apps/{appid}/community",
+	summary: "获取游戏社区页原始 HTML",
+	description: "从 steamcommunity.com 获取游戏社区页面的原始 HTML",
+	tags: ["Steam"],
+	request: {
+		params: z.object({
+			appid: z.coerce
+				.number()
+				.int()
+				.positive()
+				.describe("游戏的 appid")
+				.openapi({
+					param: {
+						name: "appid",
+						in: "path",
+						required: true,
+						description: "要获取社区页面的游戏的 appid",
+					},
+					example: 292030, // The Witcher 3: Wild Hunt
+				}),
+		}),
+		query: z.object({
+			section: z
+				.enum([
+					"",
+					"discussions",
+					"screenshots",
+					"images",
+					"broadcasts",
+					"videos",
+					"workshop",
+					"allnews",
+					"guides",
+					"reviews",
+				])
+				.default("")
+				.describe(
+					"社区页面板块，默认为空字符串 (即“全部”页面)",
+				)
+				.openapi({
+					param: {
+						name: "section",
+						in: "query",
+						required: false,
+						description:
+							"社区页面板块，例如 discussions, screenshots, workshop 等。默认为空，获取“全部”页面。",
+					},
+					example: "discussions",
+				}),
+		}),
+	},
+	responses: {
+		200: {
+			description: "成功获取游戏社区页面 HTML",
+			content: {
+				"text/html": {
+					schema: z.string().openapi({
+						example: "<!DOCTYPE html>...",
+					}),
+				},
+			},
+		},
+		500: {
+			description: "服务器内部错误",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+})
+
+app.openapi(getGameCommunityRawHtmlRoute, async (c) => {
+	try {
+		const { appid } = c.req.valid("param")
+		const { section } = c.req.valid("query")
+		const steamService = c.var.steamService
+		const communityUrl = steamService.getGameCommunityUrl(appid, section)
+		const resp = await fetch(communityUrl)
+
+		if (!resp.ok) {
+			throw new Error(
+				`Failed to fetch game community data: ${resp.statusText}`,
+			)
+		}
+
+		const rawHtml = await resp.text()
+
+		return c.html(rawHtml)
+	} catch (error) {
+		console.error("获取游戏社区页面 HTML 失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "获取游戏社区页面 HTML 失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
 export default app
