@@ -11,9 +11,12 @@
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"env:setup": "echo 'Please copy .dev.vars.example to .dev.vars and configure your environment variables'",
 		"test": "vitest",
-		"test:all": "vitest run"
+		"test:all": "vitest run",
+		"vercel:build": "echo 'Building for Vercel...'",
+		"vercel:deploy": "vercel deploy"
 	},
 	"dependencies": {
+		"@hono/node-server": "^1.16.0",
 		"@hono/zod-openapi": "^0.19.9",
 		"@scalar/hono-api-reference": "^0.9.7",
 		"drizzle-orm": "^0.44.2",
