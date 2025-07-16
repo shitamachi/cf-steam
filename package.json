@@ -13,7 +13,11 @@
 		"test": "vitest",
 		"test:all": "vitest run",
 		"vercel:build": "echo 'Building for Vercel...'",
-		"vercel:deploy": "vercel deploy"
+		"vercel:deploy": "vercel deploy",
+		"netlify:build": "pnpm run build",
+		"netlify:dev": "netlify dev",
+		"netlify:deploy": "netlify deploy",
+		"netlify:deploy:prod": "netlify deploy --prod"
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.16.0",
