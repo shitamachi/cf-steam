@@ -6,6 +6,7 @@ import {
 	SuccessResponseSchema,
 } from "../schemas"
 import {
+	CStoreTopSellers_GetWeeklyTopSellers_ResponseSchema,
 	GameDetailsSchema,
 	GetGameStoreRawDataResponseSchema,
 } from "../schemas/games"
@@ -494,6 +495,60 @@ app.openapi(getGameCommunityRawHtmlRoute, async (c) => {
 			{
 				success: false as const,
 				error: "获取游戏社区页面 HTML 失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+// 获取 StoreTopSeller 商店销量排行榜
+const getStoreTopSellerRoute = createRoute({
+	method: "get",
+	path: "/store/topsellers",
+	summary: "获取 StoreTopSeller 商店销量排行榜",
+	description: "从 Steam API 获取 StoreTopSeller 商店销量排行榜",
+	tags: ["Steam"],
+	responses: {
+		200: {
+			description: "成功获取 StoreTopSeller 商店销量排行榜",
+			content: {
+				"application/json": {
+					schema: SuccessResponseSchema.extend({
+						data: CStoreTopSellers_GetWeeklyTopSellers_ResponseSchema,
+					}),
+				},
+			},
+		},
+		500: {
+			description: "服务器内部错误",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+})
+
+app.openapi(getStoreTopSellerRoute, async (c) => {
+	try {
+		const steamService = c.var.steamService
+		const topsellers = await steamService.getStoreTopSellers()
+		return c.json(
+			{
+				success: true as const,
+				data: topsellers,
+				message: "获取 StoreTopSeller 商店销量排行榜成功",
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("获取 StoreTopSeller 商店销量排行榜失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "获取 StoreTopSeller 商店销量排行榜失败",
 				message: error instanceof Error ? error.message : "未知错误",
 			},
 			500,
