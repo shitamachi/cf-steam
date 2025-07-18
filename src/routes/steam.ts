@@ -7,6 +7,7 @@ import {
 } from "../schemas"
 import {
 	CStoreTopSellers_GetWeeklyTopSellers_ResponseSchema,
+	CSteamCharts_GetGamesByConcurrentPlayers_ResponseSchema,
 	GameDetailsSchema,
 	GetGameStoreRawDataResponseSchema,
 } from "../schemas/games"
@@ -549,6 +550,60 @@ app.openapi(getStoreTopSellerRoute, async (c) => {
 			{
 				success: false as const,
 				error: "获取 StoreTopSeller 商店销量排行榜失败",
+				message: error instanceof Error ? error.message : "未知错误",
+			},
+			500,
+		)
+	}
+})
+
+// 获取当前在线人数排行榜
+const getGamesByConcurrentPlayersRoute = createRoute({
+	method: "get",
+	path: "/charts/concurrent-players",
+	summary: "获取当前在线人数排行榜",
+	description: "从 Steam Charts API 获取按同时在线人数排序的游戏列表",
+	tags: ["Steam Charts"],
+	responses: {
+		200: {
+			description: "成功获取当前在线人数排行榜",
+			content: {
+				"application/json": {
+					schema: SuccessResponseSchema.extend({
+						data: CSteamCharts_GetGamesByConcurrentPlayers_ResponseSchema,
+					}),
+				},
+			},
+		},
+		500: {
+			description: "服务器内部错误",
+			content: {
+				"application/json": {
+					schema: ErrorResponseSchema,
+				},
+			},
+		},
+	},
+})
+
+app.openapi(getGamesByConcurrentPlayersRoute, async (c) => {
+	try {
+		const steamService = c.var.steamService
+		const concurrentPlayers = await steamService.getGamesByConcurrentPlayers()
+		return c.json(
+			{
+				success: true as const,
+				data: concurrentPlayers,
+				message: "获取当前在线人数排行榜成功",
+			},
+			200,
+		)
+	} catch (error) {
+		console.error("获取当前在线人数排行榜失败:", error)
+		return c.json(
+			{
+				success: false as const,
+				error: "获取当前在线人数排行榜失败",
 				message: error instanceof Error ? error.message : "未知错误",
 			},
 			500,

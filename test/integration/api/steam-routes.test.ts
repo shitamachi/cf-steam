@@ -193,4 +193,65 @@ describe("Steam API 路由集成测试", () => {
 			expect([200, 404].includes(res.status)).toBe(true)
 		})
 	})
+
+	describe("GET /charts/concurrent-players - 获取当前在线人数排行榜", () => {
+		it("应该成功获取当前在线人数排行榜", async () => {
+			// Mock Steam Charts API 响应
+			const mockChartsResponse = new Uint8Array([
+				// 这里使用简化的protobuf响应
+				8, 200, 154, 243, 184, 6, // lastUpdate: 1737281400
+				18, 30, // ranks array
+				8, 1, // rank: 1
+				16, 218, 5, // appid: 730
+				32, 197, 245, 174, 5, // concurrentInGame: 722157
+				40, 227, 223, 161, 10 // peakInGame: 1334627
+			])
+
+			mockFetch.mockResolvedValue(new Response(mockChartsResponse.buffer, {
+				status: 200,
+				headers: { "Content-Type": "application/x-protobuf" }
+			}))
+
+			const res = await steamApp.request("/api/steam/charts/concurrent-players", {}, mockEnv)
+			
+			expect(res.status).toBe(200)
+			
+			const data = await res.json()
+			expect(data.success).toBe(true)
+			expect(data.data).toBeDefined()
+			expect(data.data.ranks).toBeDefined()
+			expect(Array.isArray(data.data.ranks)).toBe(true)
+			expect(data.message).toBe("获取当前在线人数排行榜成功")
+		})
+
+		it("应该正确处理API错误", async () => {
+			// Mock失败响应
+			mockFetch.mockResolvedValue(new Response("Internal Server Error", {
+				status: 500
+			}))
+
+			const res = await steamApp.request("/api/steam/charts/concurrent-players", {}, mockEnv)
+			
+			expect(res.status).toBe(500)
+			
+			const data = await res.json()
+			expect(data.success).toBe(false)
+			expect(data.error).toBe("获取当前在线人数排行榜失败")
+			expect(data.message).toContain("Steam Charts API request failed")
+		})
+
+		it("应该正确处理网络错误", async () => {
+			// Mock网络错误
+			mockFetch.mockRejectedValue(new Error("Network error"))
+
+			const res = await steamApp.request("/api/steam/charts/concurrent-players", {}, mockEnv)
+			
+			expect(res.status).toBe(500)
+			
+			const data = await res.json()
+			expect(data.success).toBe(false)
+			expect(data.error).toBe("获取当前在线人数排行榜失败")
+			expect(data.message).toBe("Network error")
+		})
+	})
 }) 

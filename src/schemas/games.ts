@@ -547,3 +547,22 @@ export const CStoreTopSellers_GetWeeklyTopSellers_ResponseSchema = z.object({
 export const GetStoreTopSellerResponseSchema = SuccessResponseSchema.extend({
 	data: CStoreTopSellers_GetWeeklyTopSellers_ResponseSchema,
 })
+
+// Corresponds to CSteamCharts_GetGamesByConcurrentPlayers_Response_MostPlayedRank
+const MostPlayedRankSchema = z.object({
+	rank: z.number().optional(),
+	appid: z.number().optional(),
+	item: StoreItemSchema.optional(),
+	concurrentInGame: z.number().optional(),
+	peakInGame: z.number().optional(),
+})
+
+// Corresponds to CSteamCharts_GetGamesByConcurrentPlayers_Response
+export const CSteamCharts_GetGamesByConcurrentPlayers_ResponseSchema = z.object({
+	lastUpdate: z.number().optional(),
+	ranks: z.array(MostPlayedRankSchema),
+})
+
+export const GetGamesByConcurrentPlayersResponseSchema = SuccessResponseSchema.extend({
+	data: CSteamCharts_GetGamesByConcurrentPlayers_ResponseSchema,
+})

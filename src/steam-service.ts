@@ -2,6 +2,7 @@ import SteamAPI, { type Currency } from "steamapi";
 import { z } from "zod";
 import { LanguageSchema } from "./schemas/games";
 import { CStoreTopSellers_GetWeeklyTopSellers_Request, CStoreTopSellers_GetWeeklyTopSellers_Response } from "./generated/service_storetopsellers";
+import { CSteamCharts_GetGamesByConcurrentPlayers_Request, CSteamCharts_GetGamesByConcurrentPlayers_Response } from "./generated/service_steamcharts";
 
 // 完整的游戏数据类型定义
 export const GameSchema = z
@@ -1003,6 +1004,48 @@ export class SteamService {
 
     // 转换 BigInt 字段为字符串以避免序列化问题
     const convertedResponse = this.convertBigIntFields(topsellersResp);
+    return convertedResponse;
+  }
+
+  /**
+   * 获取当前在线人数排行榜
+   * 获取按同时在线人数排序的游戏列表
+   */
+  async getGamesByConcurrentPlayers(): Promise<CSteamCharts_GetGamesByConcurrentPlayers_Response> {
+    const request = CSteamCharts_GetGamesByConcurrentPlayers_Request.create({
+      context: {
+        language: "schinese", // 简体中文
+        countryCode: "US", // 美国
+        steamRealm: 1,
+      },
+      dataRequest: {
+        includeAssets: true,
+        includeRelease: true,
+        includePlatforms: true,
+        includeScreenshots: true,
+        includeTrailers: true,
+        includeTagCount: 20,
+        includeReviews: true,
+        includeBasicInfo: true,
+      },
+    });
+
+    const inputProtobufEncoded = CSteamCharts_GetGamesByConcurrentPlayers_Request.toBinary(request);
+    const inputProtobufEncodedString = Buffer.from(inputProtobufEncoded).toString("base64");
+    const requestUrl = `https://api.steampowered.com/ISteamChartsService/GetGamesByConcurrentPlayers/v1?origin=https%3A%2F%2Fstore.steampowered.com&input_protobuf_encoded=${encodeURIComponent(inputProtobufEncodedString)}`;
+    
+    const response = await fetch(requestUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Steam Charts API request failed: ${response.status} ${response.statusText}`);
+    }
+    
+    const responseBuffer = await response.arrayBuffer();
+    const responseBytes = new Uint8Array(responseBuffer);
+    const chartsResp = CSteamCharts_GetGamesByConcurrentPlayers_Response.fromBinary(responseBytes);
+
+    // 转换 BigInt 字段为字符串以避免序列化问题
+    const convertedResponse = this.convertBigIntFields(chartsResp);
     return convertedResponse;
   }
 }
