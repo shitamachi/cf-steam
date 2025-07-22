@@ -91,6 +91,13 @@ app.use("*", async (c, next) => {
 	const start = Date.now()
 	const method = c.req.method
 	const path = c.req.path
+	
+	// 跳过健康检查端点的日志
+	if (path === "/health") {
+		await next()
+		return
+	}
+	
 	const userAgent = c.req.header("User-Agent") || "unknown"
 
 	logInfo("请求开始", {
