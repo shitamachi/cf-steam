@@ -239,6 +239,178 @@ export class SteamService {
   }
 
   /**
+   * 获取游戏社区页面 HTML，包含年龄验证绕过功能
+   */
+  async getGameCommunityHtml(appid: number, section: string = ""): Promise<string> {
+    const url = this.getGameCommunityUrl(appid, section);
+    
+    // 创建优化的请求头
+    const headers: Record<string, string> = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'DNT': '1',
+      'Connection': 'keep-alive',
+      'Upgrade-Insecure-Requests': '1',
+      'Sec-Fetch-Dest': 'document',
+      'Sec-Fetch-Mode': 'navigate',
+      'Sec-Fetch-Site': 'none',
+      'Sec-Fetch-User': '?1',
+      'Cache-Control': 'max-age=0',
+    };
+
+    // 设置年龄验证 Cookie
+    const cookies = [
+      `wants_mature_content=1; path=/app/${appid}; domain=steamcommunity.com`,
+      `wants_mature_content=1; path=/app/${appid}; domain=store.steampowered.com`,
+      `wants_mature_content=1; path=/; domain=steamcommunity.com`,
+      `wants_mature_content=1; path=/; domain=store.steampowered.com`,
+      `wants_mature_content_apps=${appid}; path=/; domain=steamcommunity.com`,
+    ].join('; ');
+
+    if (cookies) {
+      headers['Cookie'] = cookies;
+    }
+
+    try {
+      // 第一次尝试：使用优化的请求头
+      let response = await fetch(url, { headers });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      let html = await response.text();
+
+      // 检查是否遇到年龄验证页面
+      if (this.isAgeVerificationPage(html)) {
+        console.log(`检测到年龄验证页面，尝试绕过 (appid: ${appid})`);
+        
+        // 尝试直接访问已验证的 URL 格式
+        const verifiedUrl = this.getVerifiedCommunityUrl(appid, section);
+        const verifiedResponse = await fetch(verifiedUrl, { headers });
+        
+        if (verifiedResponse.ok) {
+          html = await verifiedResponse.text();
+          
+          // 再次检查是否仍然有年龄验证
+          if (!this.isAgeVerificationPage(html)) {
+            console.log(`成功绕过年龄验证 (appid: ${appid})`);
+            return html;
+          }
+        }
+
+        // 如果直接访问失败，尝试提交年龄验证表单
+        html = await this.submitAgeVerification(url, appid, headers);
+      }
+
+      return html;
+    } catch (error) {
+      console.error(`获取游戏社区页面失败 (appid: ${appid}):`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * 检查是否为年龄验证页面
+   */
+  private isAgeVerificationPage(html: string): boolean {
+    const ageCheckIndicators = [
+      // 传统年龄验证页面标识
+      'agecheck',
+      'ageYear',
+      'ageMonth', 
+      'ageDay',
+      'CheckAgeGateSubmit',
+      'wants_mature_content',
+      'mature_content',
+      '年龄验证',
+      'Age verification',
+      
+      // 内容偏好确认页面标识（基于真实页面）
+      'contentcheck_desc_ctn',
+      'contentcheck_header',
+      'contentcheck_descriptors_ctn',
+      'contentcheck_descriptor',
+      'contentcheck_dev_ctn',
+      'contentcheck_btns_ctn',
+      'contentcheck_settings_ctn',
+      'THIS GAME CONTAINS CONTENT YOU HAVE ASKED NOT TO SEE',
+      'View Community Hub',
+      'Update Content Preferences',
+      'wants_mature_content_apps',
+      'AcceptAppHub',
+      'Proceed'
+    ];
+    
+    return ageCheckIndicators.some(indicator => 
+      html.toLowerCase().includes(indicator.toLowerCase())
+    );
+  }
+
+  /**
+   * 获取已验证的社区页面 URL
+   */
+  private getVerifiedCommunityUrl(appid: number, section: string = ""): string {
+    const communityBaseURL = "https://steamcommunity.com";
+    if (section) {
+      return `${communityBaseURL}/app/${appid}/${section}?snr=1_agecheck_agecheck__`;
+    }
+    return `${communityBaseURL}/app/${appid}?snr=1_agecheck_agecheck__`;
+  }
+
+  /**
+   * 提交年龄验证表单
+   */
+  private async submitAgeVerification(url: string, appid: number, headers: Record<string, string>): Promise<string> {
+    try {
+      // 构造年龄验证 POST 请求
+      const ageCheckUrl = `https://store.steampowered.com/agecheckset/app/${appid}/`;
+      const formData = new URLSearchParams({
+        sessionid: this.generateSessionId(),
+        ageDay: '15',
+        ageMonth: '1', 
+        ageYear: '1990' // 使用一个成年年龄
+      });
+
+      const postHeaders = {
+        ...headers,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Referer': url,
+        'Origin': 'https://store.steampowered.com'
+      };
+
+      // 提交年龄验证
+      const ageCheckResponse = await fetch(ageCheckUrl, {
+        method: 'POST',
+        headers: postHeaders,
+        body: formData
+      });
+
+      if (ageCheckResponse.ok) {
+        // 重新获取原始页面
+        const retryResponse = await fetch(url, { headers });
+        if (retryResponse.ok) {
+          return await retryResponse.text();
+        }
+      }
+
+      throw new Error('年龄验证提交失败');
+    } catch (error) {
+      console.error('年龄验证提交失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 生成随机会话 ID
+   */
+  private generateSessionId(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
+  /**
    * 抓取Steam商店页面的完整信息
    * 这个方法会抓取页面上所有可用的数据，包括基本信息、价格、评价、媒体内容等
    */

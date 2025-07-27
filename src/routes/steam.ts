@@ -478,16 +478,9 @@ app.openapi(getGameCommunityRawHtmlRoute, async (c) => {
 		const { appid } = c.req.valid("param")
 		const { section } = c.req.valid("query")
 		const steamService = c.var.steamService
-		const communityUrl = steamService.getGameCommunityUrl(appid, section)
-		const resp = await fetch(communityUrl)
-
-		if (!resp.ok) {
-			throw new Error(
-				`Failed to fetch game community data: ${resp.statusText}`,
-			)
-		}
-
-		const rawHtml = await resp.text()
+		
+		// 使用新的方法获取社区页面，包含年龄验证绕过功能
+		const rawHtml = await steamService.getGameCommunityHtml(appid, section)
 
 		return c.html(rawHtml)
 	} catch (error) {

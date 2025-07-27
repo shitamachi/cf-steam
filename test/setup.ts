@@ -73,6 +73,64 @@ function setupFetchMock() {
 			}))
 		}
 		
+		// Steam社区页面模拟
+		if (urlString.includes("steamcommunity.com")) {
+			// 检查是否为特定游戏（模拟年龄验证页面）
+			const appidMatch = urlString.match(/\/app\/(\d+)/)
+			if (appidMatch) {
+				const appid = parseInt(appidMatch[1])
+				
+				// 模拟某些游戏需要年龄验证
+				if (appid === 3117820) {
+					// 加载真实的年龄确认页面文件
+					const fs = require('fs')
+					const path = require('path')
+					const realAgeCheckHtml = fs.readFileSync(
+						path.join(process.cwd(), 'test', 'steam_community_age_check.html'), 
+						'utf8'
+					)
+					return Promise.resolve(new Response(realAgeCheckHtml, {
+						status: 200,
+						headers: { "Content-Type": "text/html" }
+					}))
+				} else if (appid === 292030) {
+					// 对于 The Witcher 3，也返回真实的年龄确认页面
+					const fs = require('fs')
+					const path = require('path')
+					const realAgeCheckHtml = fs.readFileSync(
+						path.join(process.cwd(), 'test', 'steam_community_age_check.html'), 
+						'utf8'
+					)
+					return Promise.resolve(new Response(realAgeCheckHtml, {
+						status: 200,
+						headers: { "Content-Type": "text/html" }
+					}))
+				}
+			}
+			
+			// 模拟正常社区页面响应
+			const html = `
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<title>Steam Community</title>
+				</head>
+				<body>
+					<div class="community_page">
+						<h1>Steam Community</h1>
+						<div class="discussions">讨论区内容</div>
+						<div class="screenshots">截图内容</div>
+						<div class="workshop">创意工坊内容</div>
+					</div>
+				</body>
+				</html>
+			`
+			return Promise.resolve(new Response(html, {
+				status: 200,
+				headers: { "Content-Type": "text/html" }
+			}))
+		}
+		
 		// 默认成功响应
 		return Promise.resolve(new Response("OK", { status: 200 }))
 	})
