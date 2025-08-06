@@ -1,8 +1,15 @@
 import SteamAPI, { type Currency } from "steamapi";
 import { z } from "zod";
+import { HttpError } from "./error";
+import {
+  CSteamCharts_GetGamesByConcurrentPlayers_Request,
+  CSteamCharts_GetGamesByConcurrentPlayers_Response,
+} from "./generated/service_steamcharts";
+import {
+  CStoreTopSellers_GetWeeklyTopSellers_Request,
+  CStoreTopSellers_GetWeeklyTopSellers_Response,
+} from "./generated/service_storetopsellers";
 import { LanguageSchema } from "./schemas/games";
-import { CStoreTopSellers_GetWeeklyTopSellers_Request, CStoreTopSellers_GetWeeklyTopSellers_Response } from "./generated/service_storetopsellers";
-import { CSteamCharts_GetGamesByConcurrentPlayers_Request, CSteamCharts_GetGamesByConcurrentPlayers_Response } from "./generated/service_steamcharts";
 
 // 完整的游戏数据类型定义
 export const GameSchema = z
@@ -241,23 +248,28 @@ export class SteamService {
   /**
    * 获取游戏社区页面 HTML，包含年龄验证绕过功能
    */
-  async getGameCommunityHtml(appid: number, section: string = ""): Promise<string> {
+  async getGameCommunityHtml(
+    appid: number,
+    section: string = ""
+  ): Promise<string> {
     const url = this.getGameCommunityUrl(appid, section);
-    
+
     // 创建优化的请求头
     const headers: Record<string, string> = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-      'Accept-Encoding': 'gzip, deflate, br',
-      'DNT': '1',
-      'Connection': 'keep-alive',
-      'Upgrade-Insecure-Requests': '1',
-      'Sec-Fetch-Dest': 'document',
-      'Sec-Fetch-Mode': 'navigate',
-      'Sec-Fetch-Site': 'none',
-      'Sec-Fetch-User': '?1',
-      'Cache-Control': 'max-age=0',
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+      "Accept-Encoding": "gzip, deflate, br",
+      DNT: "1",
+      Connection: "keep-alive",
+      "Upgrade-Insecure-Requests": "1",
+      "Sec-Fetch-Dest": "document",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-Site": "none",
+      "Sec-Fetch-User": "?1",
+      "Cache-Control": "max-age=0",
     };
 
     // 设置年龄验证 Cookie
@@ -267,18 +279,18 @@ export class SteamService {
       `wants_mature_content=1; path=/; domain=steamcommunity.com`,
       `wants_mature_content=1; path=/; domain=store.steampowered.com`,
       `wants_mature_content_apps=${appid}; path=/; domain=steamcommunity.com`,
-    ].join('; ');
+    ].join("; ");
 
     if (cookies) {
-      headers['Cookie'] = cookies;
+      headers["Cookie"] = cookies;
     }
 
     try {
       // 第一次尝试：使用优化的请求头
       let response = await fetch(url, { headers });
-      
+
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw new HttpError(response.status, response.statusText);
       }
 
       let html = await response.text();
@@ -286,14 +298,14 @@ export class SteamService {
       // 检查是否遇到年龄验证页面
       if (this.isAgeVerificationPage(html)) {
         console.log(`检测到年龄验证页面，尝试绕过 (appid: ${appid})`);
-        
+
         // 尝试直接访问已验证的 URL 格式
         const verifiedUrl = this.getVerifiedCommunityUrl(appid, section);
         const verifiedResponse = await fetch(verifiedUrl, { headers });
-        
+
         if (verifiedResponse.ok) {
           html = await verifiedResponse.text();
-          
+
           // 再次检查是否仍然有年龄验证
           if (!this.isAgeVerificationPage(html)) {
             console.log(`成功绕过年龄验证 (appid: ${appid})`);
@@ -318,33 +330,33 @@ export class SteamService {
   private isAgeVerificationPage(html: string): boolean {
     const ageCheckIndicators = [
       // 传统年龄验证页面标识
-      'agecheck',
-      'ageYear',
-      'ageMonth', 
-      'ageDay',
-      'CheckAgeGateSubmit',
-      'wants_mature_content',
-      'mature_content',
-      '年龄验证',
-      'Age verification',
-      
+      "agecheck",
+      "ageYear",
+      "ageMonth",
+      "ageDay",
+      "CheckAgeGateSubmit",
+      "wants_mature_content",
+      "mature_content",
+      "年龄验证",
+      "Age verification",
+
       // 内容偏好确认页面标识（基于真实页面）
-      'contentcheck_desc_ctn',
-      'contentcheck_header',
-      'contentcheck_descriptors_ctn',
-      'contentcheck_descriptor',
-      'contentcheck_dev_ctn',
-      'contentcheck_btns_ctn',
-      'contentcheck_settings_ctn',
-      'THIS GAME CONTAINS CONTENT YOU HAVE ASKED NOT TO SEE',
-      'View Community Hub',
-      'Update Content Preferences',
-      'wants_mature_content_apps',
-      'AcceptAppHub',
-      'Proceed'
+      "contentcheck_desc_ctn",
+      "contentcheck_header",
+      "contentcheck_descriptors_ctn",
+      "contentcheck_descriptor",
+      "contentcheck_dev_ctn",
+      "contentcheck_btns_ctn",
+      "contentcheck_settings_ctn",
+      "THIS GAME CONTAINS CONTENT YOU HAVE ASKED NOT TO SEE",
+      "View Community Hub",
+      "Update Content Preferences",
+      "wants_mature_content_apps",
+      "AcceptAppHub",
+      "Proceed",
     ];
-    
-    return ageCheckIndicators.some(indicator => 
+
+    return ageCheckIndicators.some((indicator) =>
       html.toLowerCase().includes(indicator.toLowerCase())
     );
   }
@@ -363,29 +375,33 @@ export class SteamService {
   /**
    * 提交年龄验证表单
    */
-  private async submitAgeVerification(url: string, appid: number, headers: Record<string, string>): Promise<string> {
+  private async submitAgeVerification(
+    url: string,
+    appid: number,
+    headers: Record<string, string>
+  ): Promise<string> {
     try {
       // 构造年龄验证 POST 请求
       const ageCheckUrl = `https://store.steampowered.com/agecheckset/app/${appid}/`;
       const formData = new URLSearchParams({
         sessionid: this.generateSessionId(),
-        ageDay: '15',
-        ageMonth: '1', 
-        ageYear: '1990' // 使用一个成年年龄
+        ageDay: "15",
+        ageMonth: "1",
+        ageYear: "1990", // 使用一个成年年龄
       });
 
       const postHeaders = {
         ...headers,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Referer': url,
-        'Origin': 'https://store.steampowered.com'
+        "Content-Type": "application/x-www-form-urlencoded",
+        Referer: url,
+        Origin: "https://store.steampowered.com",
       };
 
       // 提交年龄验证
       const ageCheckResponse = await fetch(ageCheckUrl, {
-        method: 'POST',
+        method: "POST",
         headers: postHeaders,
-        body: formData
+        body: formData,
       });
 
       if (ageCheckResponse.ok) {
@@ -396,9 +412,9 @@ export class SteamService {
         }
       }
 
-      throw new Error('年龄验证提交失败');
+      throw new Error("年龄验证提交失败");
     } catch (error) {
-      console.error('年龄验证提交失败:', error);
+      console.error("年龄验证提交失败:", error);
       throw error;
     }
   }
@@ -407,7 +423,10 @@ export class SteamService {
    * 生成随机会话 ID
    */
   private generateSessionId(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    );
   }
 
   /**
@@ -1118,15 +1137,15 @@ export class SteamService {
       return obj;
     }
 
-    if (typeof obj === 'bigint') {
+    if (typeof obj === "bigint") {
       return obj.toString();
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.convertBigIntFields(item));
+      return obj.map((item) => this.convertBigIntFields(item));
     }
 
-    if (typeof obj === 'object') {
+    if (typeof obj === "object") {
       const converted: any = {};
       for (const [key, value] of Object.entries(obj)) {
         converted[key] = this.convertBigIntFields(value);
@@ -1160,19 +1179,26 @@ export class SteamService {
       pageCount: 100,
     });
 
-    const inputProtobufEncoded = CStoreTopSellers_GetWeeklyTopSellers_Request.toBinary(request);
-    const inputProtobufEncodedString = Buffer.from(inputProtobufEncoded).toString("base64");
-    const requestUrl = `https://api.steampowered.com/IStoreTopSellersService/GetWeeklyTopSellers/v1?origin=https%3A%2F%2Fstore.steampowered.com&input_protobuf_encoded=${encodeURIComponent(inputProtobufEncodedString)}`;
-    
+    const inputProtobufEncoded =
+      CStoreTopSellers_GetWeeklyTopSellers_Request.toBinary(request);
+    const inputProtobufEncodedString =
+      Buffer.from(inputProtobufEncoded).toString("base64");
+    const requestUrl = `https://api.steampowered.com/IStoreTopSellersService/GetWeeklyTopSellers/v1?origin=https%3A%2F%2Fstore.steampowered.com&input_protobuf_encoded=${encodeURIComponent(
+      inputProtobufEncodedString
+    )}`;
+
     const response = await fetch(requestUrl);
-    
+
     if (!response.ok) {
-      throw new Error(`Steam API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Steam API request failed: ${response.status} ${response.statusText}`
+      );
     }
-    
+
     const responseBuffer = await response.arrayBuffer();
     const responseBytes = new Uint8Array(responseBuffer);
-    const topsellersResp = CStoreTopSellers_GetWeeklyTopSellers_Response.fromBinary(responseBytes);
+    const topsellersResp =
+      CStoreTopSellers_GetWeeklyTopSellers_Response.fromBinary(responseBytes);
 
     // 转换 BigInt 字段为字符串以避免序列化问题
     const convertedResponse = this.convertBigIntFields(topsellersResp);
@@ -1202,19 +1228,28 @@ export class SteamService {
       },
     });
 
-    const inputProtobufEncoded = CSteamCharts_GetGamesByConcurrentPlayers_Request.toBinary(request);
-    const inputProtobufEncodedString = Buffer.from(inputProtobufEncoded).toString("base64");
-    const requestUrl = `https://api.steampowered.com/ISteamChartsService/GetGamesByConcurrentPlayers/v1?origin=https%3A%2F%2Fstore.steampowered.com&input_protobuf_encoded=${encodeURIComponent(inputProtobufEncodedString)}`;
-    
+    const inputProtobufEncoded =
+      CSteamCharts_GetGamesByConcurrentPlayers_Request.toBinary(request);
+    const inputProtobufEncodedString =
+      Buffer.from(inputProtobufEncoded).toString("base64");
+    const requestUrl = `https://api.steampowered.com/ISteamChartsService/GetGamesByConcurrentPlayers/v1?origin=https%3A%2F%2Fstore.steampowered.com&input_protobuf_encoded=${encodeURIComponent(
+      inputProtobufEncodedString
+    )}`;
+
     const response = await fetch(requestUrl);
-    
+
     if (!response.ok) {
-      throw new Error(`Steam Charts API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Steam Charts API request failed: ${response.status} ${response.statusText}`
+      );
     }
-    
+
     const responseBuffer = await response.arrayBuffer();
     const responseBytes = new Uint8Array(responseBuffer);
-    const chartsResp = CSteamCharts_GetGamesByConcurrentPlayers_Response.fromBinary(responseBytes);
+    const chartsResp =
+      CSteamCharts_GetGamesByConcurrentPlayers_Response.fromBinary(
+        responseBytes
+      );
 
     // 转换 BigInt 字段为字符串以避免序列化问题
     const convertedResponse = this.convertBigIntFields(chartsResp);

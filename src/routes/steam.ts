@@ -1,19 +1,16 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { createMiddleware } from "hono/factory"
+import {createRoute, OpenAPIHono, z} from "@hono/zod-openapi"
+import {createMiddleware} from "hono/factory"
+import {ErrorResponseSchema, SimpleGamesResponseSchema, SuccessResponseSchema,} from "../schemas"
 import {
-	ErrorResponseSchema,
-	SimpleGamesResponseSchema,
-	SuccessResponseSchema,
-} from "../schemas"
-import {
-	CStoreTopSellers_GetWeeklyTopSellers_ResponseSchema,
-	CSteamCharts_GetGamesByConcurrentPlayers_ResponseSchema,
-	GameDetailsSchema,
-	GetGameStoreRawDataResponseSchema,
+    CSteamCharts_GetGamesByConcurrentPlayers_ResponseSchema,
+    CStoreTopSellers_GetWeeklyTopSellers_ResponseSchema,
+    GameDetailsSchema,
+    GetGameStoreRawDataResponseSchema,
 } from "../schemas/games"
-import { SteamService } from "../steam-service"
-import type { AppEnv } from "../types"
-import { createEnvHelper } from "../utils/env"
+import {SteamService} from "../steam-service"
+import type {AppEnv} from "../types"
+import {createEnvHelper} from "../utils/env"
+import {handleError} from "../error"
 
 const app = new OpenAPIHono<AppEnv>().basePath("/api/steam")
 
@@ -83,14 +80,8 @@ app.openapi(getAppsRoute, async (c) => {
 		)
 	} catch (error) {
 		console.error("获取所有游戏列表失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取所有游戏列表失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
+		const errorResult = handleError(error, "获取所有游戏列表失败")
+		return c.json(errorResult.response, errorResult.status)
 	}
 })
 
@@ -180,14 +171,8 @@ app.openapi(getGameStoreRawDataRoute, async (c) => {
 		)
 	} catch (error) {
 		console.error("获取游戏商店页原始数据失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取游戏商店页原始数据失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
+		const errorResult = handleError(error, "获取游戏商店页原始数据失败")
+		return c.json(errorResult.response, errorResult.status)
 	}
 })
 
@@ -289,14 +274,8 @@ app.openapi(getGameDetailsRoute, async (c) => {
 		)
 	} catch (error) {
 		console.error("获取游戏详细信息失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取游戏详细信息失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
+		const errorResult = handleError(error, "获取游戏详细信息失败")
+		return c.json(errorResult.response, errorResult.status)
 	}
 })
 
@@ -375,8 +354,9 @@ app.openapi(getCurrentOnlinePlayersRoute, async (c) => {
 		)
 	} catch (error) {
 		console.error("获取游戏当前在线人数失败:", error)
-		// @ts-ignore
-		if (error.message.includes("404")) {
+		
+		// 特殊处理404错误
+		if (error instanceof Error && error.message.includes("404")) {
 			return c.json(
 				{
 					success: false as const,
@@ -386,14 +366,10 @@ app.openapi(getCurrentOnlinePlayersRoute, async (c) => {
 				404,
 			)
 		}
-		return c.json(
-			{
-				success: false as const,
-				error: "获取游戏当前在线人数失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
+		
+		// 使用通用错误处理方法
+		const errorResult = handleError(error, "获取游戏当前在线人数失败")
+		return c.json(errorResult.response, errorResult.status)
 	}
 })
 
@@ -485,14 +461,8 @@ app.openapi(getGameCommunityRawHtmlRoute, async (c) => {
 		return c.html(rawHtml)
 	} catch (error) {
 		console.error("获取游戏社区页面 HTML 失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取游戏社区页面 HTML 失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
+		const errorResult = handleError(error, "获取游戏社区页面 HTML 失败")
+		return c.json(errorResult.response, errorResult.status)
 	}
 })
 
@@ -539,14 +509,8 @@ app.openapi(getStoreTopSellerRoute, async (c) => {
 		)
 	} catch (error) {
 		console.error("获取 StoreTopSeller 商店销量排行榜失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取 StoreTopSeller 商店销量排行榜失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
+		const errorResult = handleError(error, "获取 StoreTopSeller 商店销量排行榜失败")
+		return c.json(errorResult.response, errorResult.status)
 	}
 })
 
@@ -593,14 +557,8 @@ app.openapi(getGamesByConcurrentPlayersRoute, async (c) => {
 		)
 	} catch (error) {
 		console.error("获取当前在线人数排行榜失败:", error)
-		return c.json(
-			{
-				success: false as const,
-				error: "获取当前在线人数排行榜失败",
-				message: error instanceof Error ? error.message : "未知错误",
-			},
-			500,
-		)
+		const errorResult = handleError(error, "获取当前在线人数排行榜失败")
+		return c.json(errorResult.response, errorResult.status)
 	}
 })
 
