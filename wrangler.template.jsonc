@@ -1,0 +1,35 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "steam",
+	"compatibility_date": "2024-09-23",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"nodejs_compat_populate_process_env"
+	],
+	"main": "./src/index.ts",
+	"vars": {
+		"NODE_ENV": "development",
+		"LOG_LEVEL": "debug",
+		"API_BASE_URL": "http://localhost:3000"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "steam_games",
+			"database_id": "${D1_DATABASE_ID}",
+			"migrations_dir": "drizzle"
+		}
+	],
+	"triggers": {
+		"crons": ["0 0,12 * * *"]
+	},
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+	"dev": {
+		"inspector_port": 9229,
+		"local_protocol": "http",
+		"port": 8787
+	}
+}

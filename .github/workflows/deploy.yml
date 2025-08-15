@@ -1,0 +1,53 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      # Generate wrangler config with D1 ID from environment variable
+      - name: Generate wrangler config from template
+        run: pnpm run prepare-config
+        env:
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+
+      - name: Build
+        run: pnpm build
+
+      # Optional: run tests before deploy (non-blocking)
+      - name: Test (non-blocking)
+        run: pnpm test:all
+        continue-on-error: true
+
+      - name: Deploy with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+
+
