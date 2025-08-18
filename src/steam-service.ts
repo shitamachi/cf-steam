@@ -206,12 +206,23 @@ export class SteamService {
     } else {
       currency = "us";
     }
-    const appDetails = await this.steamAPI.getGameDetails(appid, {
-      language: language,
-      currency: currency,
-      filters: [],
-    });
-    return appDetails;
+    
+    try {
+      const appDetails = await this.steamAPI.getGameDetails(appid, {
+        language: language,
+        currency: currency,
+        filters: [],
+      });
+      return appDetails;
+    } catch (error) {
+      // 捕获特定的 "Failed to find app ID" 错误
+      if (error instanceof Error && error.message === "Failed to find app ID") {
+        console.info(`游戏 ${appid} 未找到或不可用`);
+        return null;
+      }
+      // 重新抛出其他错误
+      throw error;
+    }
   }
 
   /**
