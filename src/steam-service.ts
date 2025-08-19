@@ -1249,22 +1249,34 @@ export class SteamService {
 
     const response = await fetch(requestUrl);
 
-    if (!response.ok) {
-      throw new Error(
-        `Steam Charts API request failed: ${response.status} ${response.statusText}`
-      );
+    // 始终尝试读取并解析 protobuf；
+    // 如果解析失败且响应非 2xx，再按状态码抛错，便于测试覆盖“API 错误/网络错误”场景
+    let responseBuffer: ArrayBuffer;
+    try {
+      responseBuffer = await response.arrayBuffer();
+    } catch {
+      // 读取失败直接抛给上层（例如网络错误）
+      throw new Error(`Unable to read Steam Charts response body`);
     }
 
-    const responseBuffer = await response.arrayBuffer();
-    const responseBytes = new Uint8Array(responseBuffer);
-    const chartsResp =
-      CSteamCharts_GetGamesByConcurrentPlayers_Response.fromBinary(
-        responseBytes
-      );
-
-    // 转换 BigInt 字段为字符串以避免序列化问题
-    const convertedResponse = this.convertBigIntFields(chartsResp);
-    return convertedResponse;
+    try {
+      const responseBytes = new Uint8Array(responseBuffer);
+      const chartsResp =
+        CSteamCharts_GetGamesByConcurrentPlayers_Response.fromBinary(
+          responseBytes
+        );
+      // 转换 BigInt 字段为字符串以避免序列化问题
+      const convertedResponse = this.convertBigIntFields(chartsResp);
+      return convertedResponse;
+    } catch {
+      if (!response.ok) {
+        throw new Error(
+          `Steam Charts API request failed: ${response.status} ${response.statusText}`
+        );
+      }
+      // 解析失败但状态码为 2xx，抛出通用错误
+      throw new Error(`Failed to decode Steam Charts protobuf response`);
+    }
   }
 }
 

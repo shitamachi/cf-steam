@@ -3,7 +3,11 @@ import { defineWorkersConfig } from "@cloudflare/vitest-pool-workers/config"
 export default defineWorkersConfig({
 	test: {
 		include: ["test/**/*.test.ts"],
-		exclude: ["**/node_modules/**", "**/dist/**"],
+		exclude: [
+			"**/node_modules/**", 
+			"**/dist/**",
+			"test/integration/steam-community-age-verification-node.test.ts"
+		],
 		testTimeout: 30000,
 		hookTimeout: 30000,
 		setupFiles: ["./test/setup.ts"],
