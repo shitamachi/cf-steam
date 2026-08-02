@@ -1,5 +1,6 @@
 {
 	"name": "steam",
+	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
 		"prepare-config": "node ./scripts/prepare-config.mjs",
@@ -29,7 +30,9 @@
 		"fastly:prebuild": "vite build --config vite.config.prebuild.ts",
 		"start": "tsx src/node-server.ts",
 		"start:prod": "node dist/steam/node-server.js",
-		"build:node": "vite build --config vite.config.node.ts"
+		"build:node": "vite build --config vite.config.node.ts",
+		"supabase:build": "vite build --config vite.config.deno.ts",
+		"supabase:deploy": "pnpm run supabase:build && supabase functions deploy steam"
 	},
 	"dependencies": {
 		"@fastly/js-compute": "^3.33.2",
@@ -46,7 +49,7 @@
 		"@biomejs/biome": "2.0.6",
 		"@cloudflare/vite-plugin": "^1.2.3",
 		"@cloudflare/vitest-pool-workers": "^0.8.49",
-		"@cloudflare/workers-types": "^4.20250628.0",
+		"@cloudflare/workers-types": "^5.20260801.1",
 		"@fastly/cli": "^11.0.0",
 		"@protobuf-ts/plugin": "^2.11.1",
 		"@protobuf-ts/runtime": "^2.11.1",

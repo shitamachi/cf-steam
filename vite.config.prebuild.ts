@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite';
+import { buildDefine } from './scripts/git-info';
 
 export default defineConfig({
+  define: {
+    ...buildDefine,
+  },
   build: {
     lib: {
       entry: 'src/index.ts',

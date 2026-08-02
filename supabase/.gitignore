@@ -1,0 +1,11 @@
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
+
+# 构建产物（vite.config.deno.ts 生成）
+functions/steam/index.ts

@@ -1,4 +1,5 @@
 import { defineConfig } from "vite"
+import { buildDefine } from "./scripts/git-info"
 
 export default defineConfig({
   build: {
@@ -17,5 +18,6 @@ export default defineConfig({
   },
   define: {
     global: "globalThis",
+    ...buildDefine,
   }
 }) 

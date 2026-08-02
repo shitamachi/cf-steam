@@ -15,5 +15,6 @@
 		"removeComments": false,
 		"declaration": false,
 		"declarationMap": false
-	}
+	},
+	"exclude": ["supabase", "node_modules", "dist"]
 }

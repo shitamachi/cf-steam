@@ -134,11 +134,7 @@ export const GameUpdateSchema = z.object({
 })
 
 export const GamesBatchCreateSchema = z.object({
-	games: z
-		.array(GameCreateSchema)
-		.min(1)
-		.max(1000)
-		.describe("批量游戏数据"),
+	games: z.array(GameCreateSchema).min(1).max(1000).describe("批量游戏数据"),
 })
 
 // === 响应 Schema ===
@@ -182,10 +178,14 @@ export const GamesBatchResponseSchema = z.object({
 			id: z.number().optional().describe("数据库记录ID"),
 		}),
 	),
-	errors: z.array(z.object({
-		appid: z.number(),
-		error: z.string(),
-	})).optional(),
+	errors: z
+		.array(
+			z.object({
+				appid: z.number(),
+				error: z.string(),
+			}),
+		)
+		.optional(),
 	count: z.number().min(0).describe("成功处理的游戏数量"),
 })
 
@@ -193,7 +193,18 @@ export const HealthResponseSchema = z.object({
 	status: z.literal("ok"),
 	timestamp: z.string().datetime().describe("检查时间"),
 	version: z.string().describe("API版本"),
+	commit: z.string().describe("Git 提交号"),
+	branch: z.string().describe("Git 分支"),
+	date: z.string().describe("提交时间"),
 	uptime: z.number().describe("运行时间（秒）"),
+})
+
+export const VersionResponseSchema = z.object({
+	version: z.string().describe("应用版本（package.json）"),
+	commit: z.string().describe("Git 短提交号"),
+	commitFull: z.string().describe("Git 完整提交号"),
+	date: z.string().describe("提交时间（ISO 格式）"),
+	branch: z.string().describe("Git 分支"),
 })
 
 // === 类型导出 ===
@@ -216,6 +227,7 @@ export type SimpleGamesResponse = z.infer<typeof SimpleGamesResponseSchema>
 export type GameCreateResponse = z.infer<typeof GameCreateResponseSchema>
 export type GamesBatchResponse = z.infer<typeof GamesBatchResponseSchema>
 export type HealthResponse = z.infer<typeof HealthResponseSchema>
+export type VersionResponse = z.infer<typeof VersionResponseSchema>
 
 // === 搜索参数 Schema ===
 

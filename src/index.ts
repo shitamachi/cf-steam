@@ -149,7 +149,7 @@ app.doc("/openapi.json", (c) => {
 		openapi: "3.1.0",
 		info: {
 			title: "Steam Fetch API",
-			version: "1.0.0",
+			version: __APP_VERSION__,
 			description: "一个用于获取和管理 Steam 游戏信息的 API 服务",
 			contact: {
 				name: "API Support",
@@ -271,6 +271,7 @@ app.get("/", (c) => {
           <a href="${currentDomain}/docs" class="docs-link">📚 查看 API 文档</a>
           <a href="${currentDomain}/openapi.json" class="docs-link">📄 OpenAPI 规范</a>
           <a href="${currentDomain}/health" class="docs-link">💚 健康检查</a>
+          <a href="${currentDomain}/version" class="docs-link">🏷️ 版本信息</a>
         </div>
 
         <div class="api-section">

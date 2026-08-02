@@ -1,11 +1,13 @@
 import { cloudflare } from "@cloudflare/vite-plugin"
 import { defineConfig } from "vite"
 import ssrPlugin from "vite-ssr-components/plugin"
+import { buildDefine } from "./scripts/git-info"
 
 export default defineConfig({
 	plugins: [cloudflare(), ssrPlugin()],
 	define: {
 		global: "globalThis",
+		...buildDefine,
 	},
 	build: {
 		sourcemap: true,
