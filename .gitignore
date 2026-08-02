@@ -49,5 +49,8 @@ lerna-debug.log*
 # Local Netlify folder
 .netlify
 
+# Stormkit build output
+.stormkit/
+
 /bin
 /pkg
