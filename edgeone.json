@@ -1,0 +1,7 @@
+{
+	"name": "cf-steam",
+	"nodeVersion": "20.18.0",
+	"installCommand": "npm install",
+	"buildCommand": "vite build --config vite.config.edgeone.ts",
+	"outputDirectory": "./dist/edgeone"
+}

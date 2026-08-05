@@ -28,6 +28,7 @@ src/
   node-server.ts      # Node.js standalone 入口（@hono/node-server）
   index.stormkit.ts   # Stormkit serverless 入口（getRequestListener 桥接）
   index.deno.ts       # Deno/Supabase 入口
+  index.edgeone.ts    # EdgeOne Cloud Functions 入口（onRequest → app.fetch）
   renderer.tsx        # JSX 渲染中间件（vite-ssr-components）
   steam-service.ts    # 核心服务：Steam API + 网页抓取逻辑（~1200 行）
   error.ts            # HttpError 等错误处理
@@ -41,6 +42,7 @@ src/
 api/index.ts          # Vercel serverless 入口
 netlify/functions/    # Netlify Functions 入口
 supabase/functions/   # Supabase Edge Functions 入口
+edgeone.json          # EdgeOne Makers 项目配置（buildCommand / outputDirectory 覆盖控制台）
 drizzle/              # D1 迁移文件（drizzle-kit 生成，勿手改）
 scripts/              # git-info.ts（构建期注入版本信息）、prepare-config.mjs（CI 生成 wrangler.jsonc）
 test/                 # 测试 + __mocks__（fetch/D1 mock、HTML 样本）
@@ -68,6 +70,7 @@ pnpm start              # Node 模式开发：tsx src/node-server.ts（默认端
 | `pnpm wasm:build` | `vite.config.wasm.ts` | — | WASM 目标 |
 | `pnpm fastly:prebuild` | `vite.config.prebuild.ts` | `dist/fastly/` | Fastly 前置构建 |
 | `pnpm supabase:build` | `vite.config.deno.ts` | — | Supabase Edge Functions |
+| `pnpm edgeone:build` | `vite.config.edgeone.ts` | `dist/edgeone/`（cloud-functions/[[default]].js 单文件） | **EdgeOne Makers** Cloud Functions |
 
 ### 部署
 
@@ -79,7 +82,15 @@ pnpm supabase:deploy
 # Node 平台（VPS/PaaS）：install=npm install，build=npm run build:node，
 #   start=node dist/steam/node-server.js（等价 npm run start:prod）
 # Stormkit：Build command = npm run stormkit:build（产出 .stormkit/api 即被识别上传，
-#   环境变量在后台 Environment > Config 配置，运行时对函数可见）
+#   环境变量在后台 Environment > Config 配置，运行时对函数可见）。
+#   ⚠️ 必须额外设置环境变量 SK_BUILD_API=off：仓库根目录的 api/ 是 Vercel 入口，
+#   若不禁用，Stormkit 会尝试自动 webpack 构建 api/（其 import 指向不存在的
+#   dist/steam/index.js，必然失败）
+# EdgeOne Makers：依赖仓库根 edgeone.json（buildCommand=vite build --config
+#   vite.config.edgeone.ts，outputDirectory=./dist/edgeone，nodeVersion=20.18.0），
+#   控制台无需额外改动；产物 dist/edgeone/ 内含 cloud-functions/[[default]].js
+#   （Node 云函数，onRequest 入口）+ public/ 静态资源 + package.json。
+#   环境变量在控制台项目设置里配置，运行时经 context.env 注入（c.env）。
 ```
 
 ### 测试
@@ -130,9 +141,9 @@ pnpm protoc:generate    # 从 src/pb/*.proto 重新生成 src/generated/（需�
 
 ## 架构要点与坑（重要）
 
-1. **多入口共享同一 Hono app**：`src/index.ts` 导出 `app` 与 Workers 默认导出（`fetch` + `scheduled`）。Node/Deno/Vercel/Netlify 入口各自包装 `app.fetch`。改路由只动 `src/routes/`，勿动各平台胶水代码。
+1. **多入口共享同一 Hono app**：`src/index.ts` 导出 `app` 与 Workers 默认导出（`fetch` + `scheduled`）。Node/Deno/Vercel/Netlify/EdgeOne 入口各自包装 `app.fetch`。改路由只动 `src/routes/`，勿动各平台胶水代码。
 
-2. **`c.env` 在 Node 模式下不等于 `process.env`**：`@hono/node-server` 默认把 `{ incoming, outgoing }` 作为第二参数传给 fetch。`src/node-server.ts` 与 `src/index.stormkit.ts` 已显式 `app.fetch(request, process.env)`——**修改这两个文件时务必保留此行为**，否则云平台环境变量全部失效。
+2. **`c.env` 在 Node 模式下不等于 `process.env`**：`@hono/node-server` 默认把 `{ incoming, outgoing }` 作为第二参数传给 fetch。`src/node-server.ts` 与 `src/index.stormkit.ts` 已显式 `app.fetch(request, process.env)`，`src/index.edgeone.ts` 显式 `app.fetch(request, context.env)`——**修改这些文件时务必保留此行为**，否则云平台环境变量全部失效。
 
 3. **D1 绑定仅存在于 Cloudflare**：`src/routes/games.ts` 的中间件会 `drizzle(c.env.DB)`。非 Cloudflare 部署上 `c.env.DB` 为 `undefined`，真正执行 SQL 的路由会报错；纯抓取类路由（搜索、热门等）不受影响。
 
@@ -148,7 +159,9 @@ pnpm protoc:generate    # 从 src/pb/*.proto 重新生成 src/generated/（需�
 
 9. **`dist/`、`.wrangler/`、`.stormkit/` 不入库**；`drizzle/` 迁移文件由 drizzle-kit 生成，勿手改。
 
-10. **Stormkit 的函数契约是 Node 风格 `(req, res)` 而非 Lambda `(event, context)`**（虽然跑在 AWS Lambda 上），所以入口用 `@hono/node-server` 的 `getRequestListener` 而非 `hono/aws-lambda`。其文件系统路由用 node-match-path，不支持 `[...slug]`；构建产物命名为字面量 `*.cjs`，会被转成路由 `/*` 实现 catch-all。`.stormkit/api` 下不能有多余文件（每个文件都会被当端点匹配），故 `vite.config.stormkit.ts` 里设了 `publicDir: false`。
+10. **Stormkit 的函数契约是 Node 风格 `(req, res)` 而非 Lambda `(event, context)`**（虽然跑在 AWS Lambda 上），所以入口用 `@hono/node-server` 的 `getRequestListener` 而非 `hono/aws-lambda`。其文件系统路由用 node-match-path，不支持 `[...slug]`；构建产物命名为字面量 `*.cjs`，会被转成路由 `/*` 实现 catch-all。`.stormkit/api` 下不能有多余文件（每个文件都会被当端点匹配），故 `vite.config.stormkit.ts` 里设了 `publicDir: false`。部署时环境变量需设 `SK_BUILD_API=off`，否则 Stormkit 会尝试自动构建 Vercel 的 `api/` 目录（见"常用命令 → 部署"）。完整说明与踩坑记录见 `docs/stormkit.md`。
+
+11. **`api/` 目录是 Vercel 专用入口**（`vercel.json` 把所有流量 rewrite 到 `/api`），它 import 的 `dist/steam/index.js` 在当前构建体系中已不存在（陈旧路径），Vercel 部署本身也可能受影响；改动该目录需同步 `vercel.json`。
 
 ## API 概览
 

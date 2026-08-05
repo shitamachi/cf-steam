@@ -32,6 +32,7 @@
 		"start:prod": "node dist/steam/node-server.js",
 		"build:node": "vite build --config vite.config.node.ts",
 		"stormkit:build": "vite build --config vite.config.stormkit.ts",
+		"edgeone:build": "vite build --config vite.config.edgeone.ts",
 		"supabase:build": "vite build --config vite.config.deno.ts",
 		"supabase:deploy": "pnpm run supabase:build && supabase functions deploy steam"
 	},
