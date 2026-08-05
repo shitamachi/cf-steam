@@ -70,7 +70,7 @@ pnpm start              # Node 模式开发：tsx src/node-server.ts（默认端
 | `pnpm wasm:build` | `vite.config.wasm.ts` | — | WASM 目标 |
 | `pnpm fastly:prebuild` | `vite.config.prebuild.ts` | `dist/fastly/` | Fastly 前置构建 |
 | `pnpm supabase:build` | `vite.config.deno.ts` | — | Supabase Edge Functions |
-| `pnpm edgeone:build` | `vite.config.edgeone.ts` | `dist/edgeone/`（cloud-functions/[[default]].js 单文件） | **EdgeOne Makers** Cloud Functions |
+| `pnpm edgeone:build` | `vite.config.edgeone.ts` | `dist/edgeone/`（.edgeone/ Build Output API v3 结构） | **EdgeOne Makers** Cloud Functions |
 
 ### 部署
 
@@ -88,9 +88,12 @@ pnpm supabase:deploy
 #   dist/steam/index.js，必然失败）
 # EdgeOne Makers：依赖仓库根 edgeone.json（buildCommand=vite build --config
 #   vite.config.edgeone.ts，outputDirectory=./dist/edgeone，nodeVersion=20.18.0），
-#   控制台无需额外改动；产物 dist/edgeone/ 内含 cloud-functions/[[default]].js
-#   （Node 云函数，onRequest 入口）+ public/ 静态资源 + package.json。
-#   环境变量在控制台项目设置里配置，运行时经 context.env 注入（c.env）。
+#   控制台无需额外改动；产物 dist/edgeone/.edgeone/ 为 Build Output API v3 结构：
+#   cloud-functions/ssr-node/handler.js（Node SSR 入口，契约 export default
+#   async (req: IncomingMessage, context) => Response）+ config.json 路由 + assets/ 静态。
+#   构建时同步一份 .edgeone/ 到仓库根（Makers 构建 CLI 在项目根扫描 server-handler），
+#   仓库根 .edgeone/ 已在 .gitignore 中。环境变量在控制台项目设置里配置，
+#   运行时经 handler 第二参数 context.env 注入（c.env），无需设置 SK_BUILD_API。
 ```
 
 ### 测试
