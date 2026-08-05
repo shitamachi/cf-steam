@@ -86,9 +86,11 @@ pnpm supabase:deploy
 #   ⚠️ 必须额外设置环境变量 SK_BUILD_API=off：仓库根目录的 api/ 是 Vercel 入口，
 #   若不禁用，Stormkit 会尝试自动 webpack 构建 api/（其 import 指向不存在的
 #   dist/steam/index.js，必然失败）
-# EdgeOne Makers：依赖仓库根 edgeone.json（buildCommand=vite build --config
-#   vite.config.edgeone.ts，outputDirectory=./dist/edgeone，nodeVersion=20.18.0），
-#   控制台无需额外改动；产物 dist/edgeone/.edgeone/ 为 Build Output API v3 结构：
+# EdgeOne Makers：依赖仓库根 edgeone.json（buildCommand=npm run edgeone:build，
+#   outputDirectory=./dist/edgeone，nodeVersion=20.18.0），控制台无需额外改动；
+#   ⚠️ buildCommand 必须用 npm run 前缀，裸命令（如 vite build）在 Makers 的
+#   sh -c 环境里找不到 node_modules/.bin，会报 vite: command not found；
+#   产物 dist/edgeone/.edgeone/ 为 Build Output API v3 结构：
 #   cloud-functions/ssr-node/handler.js（Node SSR 入口，契约 export default
 #   async (req: IncomingMessage, context) => Response）+ config.json 路由 + assets/ 静态。
 #   构建时同步一份 .edgeone/ 到仓库根（Makers 构建 CLI 在项目根扫描 server-handler），
