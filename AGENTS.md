@@ -27,7 +27,8 @@ src/
   index.ts            # 主入口（Cloudflare Workers）：Hono app + fetch/scheduled 导出
   node-server.ts      # Node.js standalone 入口（@hono/node-server）
   index.stormkit.ts   # Stormkit serverless 入口（getRequestListener 桥接）
-  index.deno.ts       # Deno/Supabase 入口
+  index.deno.ts       # Deno/Supabase 入口（basePath /steam）
+  index.deno-deploy.ts # Deno Deploy 专用入口（Deno.serve，根路径，无 Supabase 网关逻辑）
   index.edgeone.ts    # EdgeOne Cloud Functions 入口（onRequest → app.fetch）
   renderer.tsx        # JSX 渲染中间件（vite-ssr-components）
   steam-service.ts    # 核心服务：Steam API + 网页抓取逻辑（~1200 行）
@@ -70,6 +71,7 @@ pnpm start              # Node 模式开发：tsx src/node-server.ts（默认端
 | `pnpm wasm:build` | `vite.config.wasm.ts` | — | WASM 目标 |
 | `pnpm fastly:prebuild` | `vite.config.prebuild.ts` | `dist/fastly/` | Fastly 前置构建 |
 | `pnpm supabase:build` | `vite.config.deno.ts` | — | Supabase Edge Functions |
+| `pnpm deno-deploy:build` | `vite.config.deno-deploy.ts` | `dist/deno/index.ts`（单文件 ESM） | **Deno Deploy**（console.deno.com 新平台） |
 | `pnpm edgeone:build` | `vite.config.edgeone.ts` | `dist/edgeone/`（.edgeone/ Build Output API v3 结构） | **EdgeOne Makers** Cloud Functions |
 
 ### 部署
@@ -100,6 +102,13 @@ pnpm supabase:deploy
 #   构建时同步一份 .edgeone/ 到仓库根（Makers 构建 CLI 在项目根扫描 server-handler），
 #   仓库根 .edgeone/ 已在 .gitignore 中。环境变量在控制台项目设置里配置，
 #   运行时经 handler 第二参数 context.env 注入（c.env），无需设置 SK_BUILD_API。
+# Deno Deploy：console.deno.com 新平台（Classic/deployctl 已废弃），GitHub 集成无 YAML；
+#   App Config: Install=npm install，Build=npm run deno-deploy:build，
+#   Dynamic Entrypoint=dist/deno/index.ts；⚠️ 必须用 Deno.serve（旧 std serve() 会
+#   warmup 超时），入口 src/index.deno-deploy.ts（根路径，无 basePath）；环境变量
+#   dashboard 配（Production/Development contexts）；无 D1（SQL 路由报错）、无
+#   HTMLRewriter（自动走正则实现）；本地 npm run deno-deploy:build && npm run deno:dev
+#   （需本机装 deno）；详见 docs/deno-deploy.md
 ```
 
 ### 测试

@@ -34,7 +34,9 @@
 		"stormkit:build": "vite build --config vite.config.stormkit.ts",
 		"edgeone:build": "vite build --config vite.config.edgeone.ts",
 		"supabase:build": "vite build --config vite.config.deno.ts",
-		"supabase:deploy": "npm run supabase:build && supabase functions deploy steam"
+		"supabase:deploy": "npm run supabase:build && supabase functions deploy steam",
+		"deno-deploy:build": "vite build --config vite.config.deno-deploy.ts",
+		"deno:dev": "deno run --allow-net --allow-env dist/deno/index.ts"
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.16.0",
