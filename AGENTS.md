@@ -81,11 +81,15 @@ pnpm fastly:deploy
 pnpm supabase:deploy
 # Node 平台（VPS/PaaS）：install=npm install，build=npm run build:node，
 #   start=node dist/steam/node-server.js（等价 npm run start:prod）
-# Stormkit：Build command = npm run stormkit:build（产出 .stormkit/api 即被识别上传，
-#   环境变量在后台 Environment > Config 配置，运行时对函数可见）。
+# Stormkit：Install command = npm install --omit=dev --no-audit --no-fund
+#   （⚠️ 必须：构建机磁盘小，完整安装 ~2.1GB 会 ENOSPC；构建必需包 vite/
+#   vite-ssr-components/@protobuf-ts/runtime(-rpc) 已移入 dependencies，omit=dev
+#   只装 ~90M），Build command = npm run stormkit:build（产出 .stormkit/api 即被
+#   识别上传，环境变量在后台 Environment > Config 配置，运行时对函数可见）。
 #   ⚠️ 必须额外设置环境变量 SK_BUILD_API=off：仓库根目录的 api/ 是 Vercel 入口，
 #   若不禁用，Stormkit 会尝试自动 webpack 构建 api/（其 import 指向不存在的
-#   dist/steam/index.js，必然失败）
+#   dist/steam/index.js，必然失败）；steamapi 为 git 依赖（.npmrc 已 allow-git=true，
+#   package.json 固定 git+https commit），详见 docs/stormkit.md
 # EdgeOne Makers：依赖仓库根 edgeone.json（buildCommand=npm run edgeone:build，
 #   outputDirectory=./dist/edgeone，nodeVersion=20.18.0），控制台无需额外改动；
 #   ⚠️ buildCommand 必须用 npm run 前缀，裸命令（如 vite build）在 Makers 的

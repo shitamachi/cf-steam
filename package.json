@@ -37,14 +37,17 @@
 		"supabase:deploy": "npm run supabase:build && supabase functions deploy steam"
 	},
 	"dependencies": {
-		"@fastly/js-compute": "^3.33.2",
 		"@hono/node-server": "^1.16.0",
 		"@hono/zod-openapi": "^0.19.10",
+		"@protobuf-ts/runtime": "^2.11.1",
+		"@protobuf-ts/runtime-rpc": "^2.11.1",
 		"@scalar/hono-api-reference": "^0.9.7",
 		"drizzle-orm": "^0.44.2",
 		"hono": "^4.8.3",
 		"node-fetch": "^3.3.2",
 		"steamapi": "github:shitamachi/node-steamapi",
+		"vite": "6.3.4",
+		"vite-ssr-components": "^0.3.0",
 		"zod": "^3.22.4"
 	},
 	"devDependencies": {
@@ -54,15 +57,11 @@
 		"@cloudflare/workers-types": "^5.20260801.1",
 		"@fastly/cli": "^11.0.0",
 		"@protobuf-ts/plugin": "^2.11.1",
-		"@protobuf-ts/runtime": "^2.11.1",
-		"@protobuf-ts/runtime-rpc": "^2.11.1",
 		"@types/node": "^20.10.0",
 		"drizzle-kit": "^0.31.4",
 		"ts-node": "^10.9.2",
 		"tsx": "^4.20.3",
 		"typescript": "^5.8.3",
-		"vite": "6.3.4",
-		"vite-ssr-components": "^0.3.0",
 		"vitest": "^3.2.4",
 		"wrangler": "^4.17.0"
 	}
