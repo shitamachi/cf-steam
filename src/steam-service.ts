@@ -1,4 +1,4 @@
-import SteamAPI, { type Currency } from "steamapi";
+import SteamAPI, { type Currency } from "steamapi-wasm";
 import { z } from "zod";
 import { HttpError } from "./error";
 import {

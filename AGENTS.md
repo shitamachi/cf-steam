@@ -90,8 +90,8 @@ pnpm supabase:deploy
 #   识别上传，环境变量在后台 Environment > Config 配置，运行时对函数可见）。
 #   ⚠️ 必须额外设置环境变量 SK_BUILD_API=off：仓库根目录的 api/ 是 Vercel 入口，
 #   若不禁用，Stormkit 会尝试自动 webpack 构建 api/（其 import 指向不存在的
-#   dist/steam/index.js，必然失败）；steamapi 为 git 依赖（.npmrc 已 allow-git=true，
-#   package.json 固定 git+https commit），详见 docs/stormkit.md
+#   dist/steam/index.js，必然失败）；steamapi 已发布为 registry 包 steamapi-wasm
+#   （原 git 依赖在 Deno Deploy 构建环境的 npm shim 下必崩，详见 docs/deno-deploy.md）
 # EdgeOne Makers：依赖仓库根 edgeone.json（buildCommand=npm run edgeone:build，
 #   outputDirectory=./dist/edgeone，nodeVersion=20.18.0），控制台无需额外改动；
 #   ⚠️ buildCommand 必须用 npm run 前缀，裸命令（如 vite build）在 Makers 的

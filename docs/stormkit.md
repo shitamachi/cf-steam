@@ -37,13 +37,13 @@ Stormkit 是一个跑在 **AWS Lambda** 上的 JS 平台即服务，但**没有�
 
 ### 0. 安装失败：ENOSPC（磁盘空间不足）
 
-Stormkit 构建机的 `/tmp` 磁盘空间有限，**完整 `npm install`（约 2.1GB）装不下**，报 `ENOSPC: no space left on device`（解压 `drizzle-orm` 时满，git 依赖 `steamapi` 的 clone 是压垮点）。
+Stormkit 构建机的 `/tmp` 磁盘空间有限，**完整 `npm install`（约 2.1GB）装不下**，报 `ENOSPC: no space left on device`（解压 `drizzle-orm` 时满）。
 
 **原因**：`node_modules` 的大头全是 Cloudflare/Fastly/vitest 生态（`@cloudflare/*` 295M、`@bytecodealliance` 144M、`binaryen` 93M、`@fastly/*` 78M、wrangler、miniflare 等），Stormkit 构建完全用不到。
 
 **解决**：构建必需的包（`vite`、`vite-ssr-components`、`@protobuf-ts/runtime`、`@protobuf-ts/runtime-rpc`）已从 devDependencies 移入 dependencies，Install command 用 `npm install --omit=dev`（只装 ~90M）。改控制台 Install command 即可。
 
-**另一个坑**：`steamapi` 是 git 依赖（`github:shitamachi/node-steamapi`），npm 11+ 默认禁用 git 依赖（EALLOWGIT），且包管理器可能把它解析为 `git+ssh://`（构建机无 SSH key 会 clone 失败）。仓库 `.npmrc` 已加 `allow-git=true`，`package.json` 已显式写 `git+https://...#commit` 固定 commit。
+**另一个坑**：`steamapi` 原为 git 依赖（`github:shitamachi/node-steamapi`），有 EALLOWGIT / SSH key / git+ssh 解析等多重问题；且 npm 12 在 Deno Deploy 构建环境（Deno 的 npm shim）下对 git 依赖做 preparation 必然崩溃（详见 docs/deno-deploy.md 坑 5）。现已发布为 registry 包 **`steamapi-wasm`**（fork 构建产物，无 git 依赖、无需 allow-git 配置）。
 
 ### 1. `api/` 目录触发 Stormkit 自动构建失败（必踩）
 

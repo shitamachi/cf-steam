@@ -58,3 +58,14 @@ npm run deno:dev            # deno run --allow-net --allow-env dist/deno/index.t
    入口需 shim `globalThis.process`；`node:buffer` 为 external（Deno 原生支持）。
 4. **构建产物自包含**：vite lib mode 把所有依赖（hono/zod/steamapi 等）打进单个
    `dist/deno/index.ts`，Deno Deploy 无需 import map / deno.json。
+5. **不能有 git 依赖**：构建环境所有 JS（node/npm/npx/yarn/pnpm）都经 **Deno 的 npm shim**
+   执行（npm 12.0.2 下载到 DENO_DIR 后运行）。npm 对 git 依赖做 "git dep preparation"
+   时必然崩溃（npm 包自带 workspaces 字段 + shim 下 cwd 错位，报
+   `Could not find package.json for workspace member in '.../npm/12.0.2/docs/'`；
+   实测 npm 10/11/12、pnpm（__proto__ 禁用）、yarn（sharp install 脚本）全失败，
+   截至 2026-08 官方无修复，deploy_feedback / deno issues 无相关条目）。
+   解决方案：**fork 已发布为 registry 包 `steamapi-wasm`**（本项目依赖直接用它，
+   原 git 依赖 `github:shitamachi/node-steamapi` 已废弃）。
+6. **npmmirror 镜像会误伤 lock**：若本地 npm registry 配置为淘宝镜像，npm install 会把
+   lock 的 resolved 写成 `registry.npmmirror.com`，npm 12 默认禁用非官方 registry 的
+   "remote" 依赖（EALLOWREMOTE）。lock 必须使用 `registry.npmjs.org` URL。

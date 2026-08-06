@@ -47,7 +47,7 @@
 		"drizzle-orm": "^0.44.2",
 		"hono": "^4.8.3",
 		"node-fetch": "^3.3.2",
-		"steamapi": "github:shitamachi/node-steamapi",
+		"steamapi-wasm": "^3.1.5-wasm",
 		"vite": "6.3.4",
 		"vite-ssr-components": "^0.3.0",
 		"zod": "^3.22.4"
